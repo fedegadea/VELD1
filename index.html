@@ -1,898 +1,378 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Veld — Desarrollo web para negocios premium</title>
+<title>Veld — Sitios web premium en 48hs</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --black:#080808;--white:#f4f1ec;--off-white:#ede9e2;
-  --gray:#111;--gray2:#181818;
-  --muted:#888;--muted-dark:#5a5a5a;
-  --accent:#c8b99a;--accent-dark:#a8956e;
-  --accent-dim:rgba(200,185,154,0.1);
+  --black:#060608;
+  --white:#f4f1ed;
+  --gold:#c9a96e;
+  --gray:#8a8680;
+  --border:rgba(201,169,110,0.15);
+  --border2:rgba(201,169,110,0.3);
 }
-html{scroll-behavior:smooth}
-body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif;font-weight:300;overflow-x:hidden;cursor:none}
- 
-/* SCROLL PROGRESS LINE */
-#scroll-line{position:fixed;top:0;left:0;height:1px;background:var(--accent);z-index:99997;width:0%;transition:width 0.05s linear;transform-origin:left}
- 
-/* CURSOR */
-.cursor{position:fixed;width:8px;height:8px;background:var(--accent);border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:transform 0.15s ease,background 0.3s}
-.cursor-ring{position:fixed;width:36px;height:36px;border:1px solid rgba(200,185,154,0.35);border-radius:50%;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);transition:width 0.3s,height 0.3s,border-color 0.3s}
-.cursor.light{background:var(--black)}
-.cursor-ring.light{border-color:rgba(8,8,8,0.3)}
- 
-/* CAPTURE */
-#capture{position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.8s ease}
-#capture.visible{opacity:1;pointer-events:all}
-#capture.closing{opacity:0;pointer-events:none}
-.cap-backdrop{position:absolute;inset:0;background:rgba(8,8,8,0.97);backdrop-filter:blur(16px)}
-.cap-frame{position:absolute;inset:0;overflow:hidden}
-.cap-frame::before,.cap-frame::after{content:'';position:absolute;background:var(--accent);opacity:0.1}
-.cap-frame::before{top:0;left:0;right:0;height:1px;transform:scaleX(0);transform-origin:left;transition:transform 1.2s ease 0.3s}
-.cap-frame::after{top:0;left:0;bottom:0;width:1px;transform:scaleY(0);transform-origin:top;transition:transform 1.2s ease 0.5s}
-#capture.visible .cap-frame::before,#capture.visible .cap-frame::after{transform:scale(1)}
-.cap-inner{position:relative;z-index:1;max-width:580px;width:90%;padding:4rem 0}
-.cap-tag{font-size:0.6rem;letter-spacing:0.4em;text-transform:uppercase;color:var(--accent);margin-bottom:3rem;opacity:0;transition:opacity 0.6s ease 0.8s;display:flex;align-items:center;gap:1rem}
-.cap-tag::before{content:'';width:24px;height:1px;background:var(--accent)}
-#capture.visible .cap-tag{opacity:1}
-.cap-headline{font-family:'Cormorant',serif;font-size:clamp(2rem,5vw,3.2rem);font-weight:300;line-height:1.2;min-height:5em;margin-bottom:3rem}
-.cap-headline em{font-style:italic;color:var(--accent)}
-.typed-cursor{display:inline-block;width:2px;height:0.85em;background:var(--accent);margin-left:3px;vertical-align:middle;animation:blink 0.9s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-.cap-form{opacity:0;transform:translateY(16px);transition:opacity 0.6s ease,transform 0.6s ease}
-.cap-form.show{opacity:1;transform:translateY(0)}
-.cap-label{font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted-dark);display:block;margin-bottom:1rem}
-.cap-input-wrap{display:flex;align-items:stretch;border-bottom:1px solid rgba(200,185,154,0.25);transition:border-color 0.3s}
-.cap-input-wrap:focus-within{border-color:var(--accent)}
-.cap-input{flex:1;background:transparent;border:none;outline:none;color:var(--white);font-family:'Cormorant',serif;font-size:1.5rem;font-weight:300;padding:0.8rem 0;cursor:none}
-.cap-input::placeholder{color:rgba(244,241,236,0.12);font-style:italic}
-.cap-submit{background:transparent;border:none;color:var(--accent);font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;cursor:none;padding:0 0 0 1.5rem;transition:color 0.3s;white-space:nowrap}
-.cap-submit:hover{color:var(--white)}
-.cap-skip{margin-top:2rem;font-size:0.62rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(90,90,90,0.5);cursor:none;background:none;border:none;transition:color 0.3s;display:block}
-.cap-skip:hover{color:var(--muted-dark)}
-.cap-success{opacity:0;transform:translateY(10px);transition:opacity 0.6s,transform 0.6s;position:absolute;top:4rem;left:0;right:0;pointer-events:none}
-.cap-success.show{opacity:1;transform:translateY(0);pointer-events:all}
-.suc-title{font-family:'Cormorant',serif;font-size:clamp(2rem,4vw,3rem);font-weight:300;line-height:1.2;margin-bottom:1.5rem}
-.suc-title em{font-style:italic;color:var(--accent)}
-.suc-sub{font-size:0.82rem;color:var(--muted-dark);line-height:1.9;margin-bottom:2.5rem}
-.suc-btn{font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);background:none;border:none;cursor:none;transition:color 0.3s}
-.suc-btn:hover{color:var(--white)}
- 
-/* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:2rem 3rem;mix-blend-mode:normal;transition:background 0.4s,border-color 0.4s}
-nav.light-nav{background:rgba(237,233,226,0.92);backdrop-filter:blur(12px);border-bottom:1px solid rgba(8,8,8,0.08)}
-.logo{font-family:'Cormorant',serif;font-size:1.4rem;font-weight:300;letter-spacing:0.3em;text-transform:uppercase;color:var(--white);text-decoration:none;transition:color 0.3s}
-nav.light-nav .logo{color:var(--black)}
-.nav-cta{font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(244,241,236,0.5);text-decoration:none;transition:color 0.3s}
-.nav-cta:hover{color:var(--white)}
-nav.light-nav .nav-cta{color:rgba(8,8,8,0.45)}
-nav.light-nav .nav-cta:hover{color:var(--black)}
- 
-/* HERO — DARK */
-.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;padding:0 3rem 5rem;position:relative;overflow:hidden;background:var(--black)}
-#heroCanvas{position:absolute;inset:0;width:100%;height:100%}
-.hero-overlay{position:absolute;inset:0;pointer-events:none;background:linear-gradient(to bottom,transparent 50%,rgba(8,8,8,0.85) 85%,var(--black) 100%)}
-.hero-bg-letter{font-family:'Cormorant',serif;font-size:clamp(200px,32vw,500px);font-weight:300;line-height:0.85;color:transparent;-webkit-text-stroke:1px rgba(200,185,154,0.04);position:absolute;right:-3rem;top:50%;transform:translateY(-50%);pointer-events:none;user-select:none}
- 
-/* Micro-animation: words reveal */
-.hero-eyebrow{font-size:0.62rem;letter-spacing:0.35em;text-transform:uppercase;color:var(--accent);margin-bottom:2.5rem;display:flex;align-items:center;gap:1rem;overflow:hidden}
-.hero-eyebrow::before{content:'';width:24px;height:1px;background:var(--accent)}
-.hero-eyebrow span{display:inline-block;opacity:0;transform:translateY(100%);animation:slideUp 0.7s ease 0.3s forwards}
- 
-.hero-title{font-family:'Cormorant',serif;font-size:clamp(3.2rem,9vw,8rem);font-weight:300;line-height:1;max-width:820px}
-.hero-title .line{display:block;overflow:hidden}
-.hero-title .line span{display:block;opacity:0;transform:translateY(110%);animation:slideUp 0.9s cubic-bezier(0.16,1,0.3,1) forwards}
-.hero-title .line:nth-child(1) span{animation-delay:0.4s}
-.hero-title .line:nth-child(2) span{animation-delay:0.55s}
-.hero-title .line:nth-child(3) span{animation-delay:0.7s}
-.hero-title em{font-style:italic;color:var(--accent)}
- 
-.hero-bottom{display:flex;justify-content:space-between;align-items:flex-end;margin-top:5rem;opacity:0;animation:fadeUp 1s ease 1s forwards}
-.hero-sub{font-size:0.88rem;color:rgba(244,241,236,0.55);max-width:360px;line-height:1.8}
-.hero-scroll{font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(244,241,236,0.35);display:flex;align-items:center;gap:1rem}
-.scroll-line{width:40px;height:1px;background:rgba(244,241,236,0.2);position:relative;overflow:hidden}
-.scroll-line::after{content:'';position:absolute;left:-100%;top:0;width:100%;height:100%;background:var(--accent);animation:slideRight 2s ease infinite}
- 
-/* PROBLEM — LIGHT */
-.problem{padding:9rem 3rem;background:var(--off-white);position:relative;overflow:hidden}
-.problem-inner{max-width:960px;margin:0 auto;position:relative;z-index:1}
-.section-tag{font-size:0.62rem;letter-spacing:0.35em;text-transform:uppercase;color:var(--accent-dark);margin-bottom:3rem;display:flex;align-items:center;gap:1rem}
-.section-tag::before{content:'';width:28px;height:1px;background:var(--accent-dark)}
-.section-tag.light{color:var(--accent)}
-.section-tag.light::before{background:var(--accent)}
-.problem-text{font-family:'Cormorant',serif;font-size:clamp(2rem,4.5vw,3.8rem);font-weight:300;line-height:1.25;color:var(--black)}
-.problem-text .dim{color:rgba(8,8,8,0.35)}
-.problem-text em{font-style:italic;color:var(--accent-dark)}
-/* giant background word */
-.problem::before{content:'WEB';position:absolute;font-family:'Cormorant',serif;font-size:28vw;font-weight:300;color:transparent;-webkit-text-stroke:1px rgba(8,8,8,0.06);top:50%;right:-2rem;transform:translateY(-50%);pointer-events:none;user-select:none;line-height:1}
- 
-/* STATS — DARK */
-.stats-band{background:var(--black);border-top:1px solid rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06)}
-.stats-inner{max-width:1040px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr)}
-.stat-item{padding:4rem 3rem;border-right:1px solid rgba(255,255,255,0.06);text-align:center}
-.stat-item:last-child{border-right:none}
-.stat-num{font-family:'Cormorant',serif;font-size:clamp(3.5rem,7vw,6rem);font-weight:300;color:var(--accent);line-height:1;display:block}
-.stat-label{font-size:0.72rem;color:var(--muted-dark);line-height:1.7;margin-top:0.8rem;letter-spacing:0.06em}
- 
-/* LEAD FEATURE — LIGHT */
-.lead-feature{padding:8rem 3rem;background:var(--off-white);position:relative;overflow:hidden}
-.lead-feature::after{content:'LEADS';position:absolute;font-family:'Cormorant',serif;font-size:22vw;font-weight:300;color:transparent;-webkit-text-stroke:1px rgba(8,8,8,0.05);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;white-space:nowrap}
-.lead-inner{max-width:1040px;margin:0 auto;position:relative;z-index:1}
-.lead-header{display:grid;grid-template-columns:1fr 1fr;gap:6rem;align-items:end;margin-bottom:5rem}
-.lead-title{font-family:'Cormorant',serif;font-size:clamp(2.8rem,5.5vw,5rem);font-weight:300;line-height:1.05;color:var(--black)}
-.lead-title em{font-style:italic;color:var(--accent-dark)}
-.lead-explain{font-size:0.88rem;color:rgba(8,8,8,0.55);line-height:1.9;padding-top:0.5rem}
-.lead-explain strong{color:var(--black);font-weight:400}
- 
-/* Demo widget */
-.lead-demo{border:1px solid rgba(8,8,8,0.1);background:#fff;box-shadow:0 4px 40px rgba(8,8,8,0.06)}
-.demo-topbar{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;border-bottom:1px solid rgba(8,8,8,0.06);background:#fafaf8}
-.demo-dots{display:flex;gap:6px}
-.demo-dot{width:8px;height:8px;border-radius:50%;background:rgba(8,8,8,0.1)}
-.demo-dot:first-child{background:var(--accent)}
-.demo-url{font-size:0.62rem;color:rgba(8,8,8,0.4);letter-spacing:0.05em}
-.demo-badge{font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent-dark);border:1px solid rgba(168,149,110,0.3);padding:0.25rem 0.6rem}
-.demo-body{padding:2rem 1.5rem}
-.demo-search-wrap{display:flex;border:1px solid rgba(8,8,8,0.12);background:#fafaf8;margin-bottom:1.5rem;transition:border-color 0.3s}
-.demo-search-wrap:focus-within{border-color:var(--accent-dark)}
-.demo-search-input{flex:1;background:transparent;border:none;outline:none;color:var(--black);font-family:'Cormorant',serif;font-size:1.1rem;font-weight:300;padding:0.9rem 1.2rem;cursor:none;font-style:italic}
-.demo-search-input::placeholder{color:rgba(8,8,8,0.22)}
-.demo-search-btn{background:transparent;border:none;border-left:1px solid rgba(8,8,8,0.08);color:var(--accent-dark);font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;cursor:none;padding:0 1.2rem;transition:background 0.3s;white-space:nowrap}
-.demo-search-btn:hover{background:rgba(200,185,154,0.15)}
-.demo-search-btn:disabled{opacity:0.3}
-.demo-chips{display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1.5rem}
-.demo-chip{font-size:0.65rem;padding:0.4rem 0.8rem;border:1px solid rgba(8,8,8,0.1);color:rgba(8,8,8,0.5);cursor:none;background:transparent;transition:all 0.2s;font-family:'DM Sans',sans-serif}
-.demo-chip:hover{border-color:var(--accent-dark);color:var(--black);background:rgba(200,185,154,0.1)}
-.demo-thinking{display:none;align-items:center;gap:0.8rem;padding:1rem 0;color:rgba(8,8,8,0.4);font-size:0.72rem;letter-spacing:0.08em}
-.demo-thinking.on{display:flex}
-.think-dots{display:flex;gap:4px}
-.think-dots span{width:4px;height:4px;background:var(--accent-dark);border-radius:50%;opacity:0.3;animation:dotP 1.2s ease infinite}
-.think-dots span:nth-child(2){animation-delay:0.2s}
-.think-dots span:nth-child(3){animation-delay:0.4s}
-@keyframes dotP{0%,100%{opacity:0.2;transform:scale(1)}50%{opacity:1;transform:scale(1.4)}}
-.demo-results{display:none}
-.demo-results.on{display:block}
-.demo-results-meta{font-size:0.62rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(8,8,8,0.4);margin-bottom:1rem;padding-bottom:0.8rem;border-bottom:1px solid rgba(8,8,8,0.06)}
-.demo-results-meta span{color:var(--accent-dark)}
-/* ── PROPERTY TOUR CARDS ── */
-.demo-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(8,8,8,0.08)}
-.demo-card{background:#fff;opacity:0;transform:translateY(12px);transition:opacity 0.4s ease,transform 0.4s ease;cursor:none;position:relative;display:flex;flex-direction:column}
-.demo-card.on{opacity:1;transform:translateY(0)}
- 
-/* Photo zone */
-.card-photo-zone{position:relative;overflow:hidden;aspect-ratio:4/3;background:#e8e4de;flex-shrink:0}
-.card-photo-bg{position:absolute;inset:0;transition:background 0.4s ease}
-.card-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity 0.22s ease,transform 0.22s ease;opacity:1}
-.card-photo-overlay{position:absolute;bottom:0;left:0;right:0;padding:0.8rem 1rem;background:linear-gradient(transparent,rgba(8,8,8,0.55));pointer-events:none}
-.card-photo-label{font-size:0.58rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.9);transition:opacity 0.25s ease}
-.card-tour-btn{position:absolute;top:0.6rem;right:0.6rem;background:rgba(8,8,8,0.65);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.15);color:#fff;font-size:0.56rem;letter-spacing:0.16em;text-transform:uppercase;padding:0.35rem 0.7rem;cursor:none;transition:background 0.25s;display:flex;align-items:center;gap:0.4rem;white-space:nowrap;z-index:3}
-.card-tour-btn:hover{background:rgba(8,8,8,0.85)}
-.card-tour-btn.active{background:rgba(168,149,110,0.92);color:var(--black);border-color:transparent}
-.tour-icon{font-size:0.8rem;line-height:1}
- 
-/* Floor plan overlay */
-.card-floorplan{position:absolute;inset:0;background:rgba(242,239,233,0.97);opacity:0;pointer-events:none;transition:opacity 0.28s ease;z-index:2}
-.card-floorplan.open{opacity:1;pointer-events:all}
-.card-floorplan::before{content:'';position:absolute;inset:14% 12%;background-image:linear-gradient(rgba(8,8,8,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(8,8,8,0.06) 1px,transparent 1px);background-size:18px 18px;border:1px solid rgba(8,8,8,0.1)}
-.fp-hotspot{position:absolute;background:none;border:none;cursor:none;transform:translate(-50%,-50%);z-index:3;display:flex;flex-direction:column;align-items:center;gap:2px}
-.fp-dot{display:block;width:9px;height:9px;border-radius:50%;background:var(--accent-dark);border:1.5px solid rgba(255,255,255,0.6);transition:transform 0.2s,background 0.2s;position:relative}
-.fp-dot::after{content:'';position:absolute;inset:-5px;border-radius:50%;border:1px solid rgba(168,149,110,0.45);animation:pdot 2s ease infinite}
-@keyframes pdot{0%,100%{transform:scale(1);opacity:0.6}50%{transform:scale(1.7);opacity:0}}
-.fp-hotspot:hover .fp-dot,.fp-hotspot.active .fp-dot{transform:scale(1.35);background:var(--black)}
-.fp-tooltip{font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--black);background:rgba(242,239,233,0.95);padding:0.18rem 0.38rem;border:1px solid rgba(8,8,8,0.12);white-space:nowrap;opacity:0;transform:translateY(3px);transition:opacity 0.18s,transform 0.18s;pointer-events:none}
-.fp-hotspot:hover .fp-tooltip,.fp-hotspot.active .fp-tooltip{opacity:1;transform:translateY(0)}
-.fp-hint{position:absolute;bottom:0.6rem;left:0;right:0;text-align:center;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(8,8,8,0.3);pointer-events:none}
- 
-/* Card info */
-.card-info{padding:1rem 1.1rem;flex:1;position:relative}
-.demo-card-rank{position:absolute;top:0.8rem;right:1rem;font-family:'Cormorant',serif;font-size:2rem;font-weight:300;color:transparent;-webkit-text-stroke:1px rgba(8,8,8,0.1);line-height:1}
-.demo-card-type{font-size:0.52rem;letter-spacing:0.28em;text-transform:uppercase;color:var(--accent-dark);margin-bottom:0.4rem;opacity:0.8}
-.demo-card-name{font-family:'Cormorant',serif;font-size:1rem;font-weight:300;line-height:1.2;margin-bottom:0.2rem;color:var(--black)}
-.demo-card-loc{font-size:0.62rem;color:rgba(8,8,8,0.4);margin-bottom:0.6rem}
-.demo-card-match{font-size:0.62rem;color:rgba(168,149,110,0.8);font-style:italic;line-height:1.4;padding-top:0.6rem;border-top:1px solid rgba(8,8,8,0.06)}
-.demo-bar-wrap{display:flex;align-items:center;gap:0.6rem;margin-top:0.7rem}
-.demo-bar-track{flex:1;height:1px;background:rgba(8,8,8,0.08)}
-.demo-bar-fill{height:100%;background:var(--accent-dark);width:0;transition:width 0.9s ease 0.3s}
-.demo-bar-score{font-size:0.56rem;color:var(--accent-dark);letter-spacing:0.08em;white-space:nowrap}
- 
-/* HOW IT WORKS — DARK */
-.how{padding:8rem 3rem;background:var(--black);position:relative}
-.how-inner{max-width:1040px;margin:0 auto}
-.how-title{font-family:'Cormorant',serif;font-size:clamp(2.5rem,5vw,4.5rem);font-weight:300;line-height:1.05;margin-bottom:6rem}
-.how-title em{font-style:italic;color:var(--accent)}
-.how-steps{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid rgba(255,255,255,0.06)}
-.how-step{padding:3rem 2rem 3rem 0;position:relative}
-.how-step::before{content:attr(data-n);position:absolute;top:3rem;right:1.5rem;font-family:'Cormorant',serif;font-size:3.5rem;font-weight:300;color:transparent;-webkit-text-stroke:1px rgba(200,185,154,0.1);line-height:1}
-.step-label{font-size:0.6rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--accent);margin-bottom:1.5rem;opacity:0.7}
-.step-title{font-family:'Cormorant',serif;font-size:1.5rem;font-weight:300;line-height:1.2;margin-bottom:1rem}
-.step-desc{font-size:0.78rem;color:var(--muted-dark);line-height:1.8}
- 
-/* FOR WHOM — LIGHT */
-.forwhom{padding:8rem 3rem;background:var(--off-white)}
-.forwhom-inner{max-width:1040px;margin:0 auto}
-.forwhom-title{font-family:'Cormorant',serif;font-size:clamp(2.5rem,5vw,4rem);font-weight:300;line-height:1.1;margin-bottom:5rem;color:var(--black)}
-.forwhom-title em{font-style:italic;color:var(--accent-dark)}
-.forwhom-grid{display:grid;grid-template-columns:repeat(3,1fr)}
-.fw-item{padding:2.5rem;border-left:1px solid rgba(8,8,8,0.08);transition:background 0.35s;position:relative}
-.fw-item:hover{background:rgba(200,185,154,0.08)}
-.fw-icon{font-size:1.4rem;margin-bottom:1.5rem;opacity:0.4;color:var(--black)}
-.fw-name{font-family:'Cormorant',serif;font-size:1.5rem;font-weight:300;margin-bottom:0.8rem;line-height:1.1;color:var(--black)}
-.fw-desc{font-size:0.78rem;color:rgba(8,8,8,0.55);line-height:1.8}
-.fw-tag{margin-top:1.5rem;font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent-dark);opacity:0.7}
- 
-/* CTA — DARK */
-.cta{padding:12rem 3rem;text-align:center;position:relative;overflow:hidden;background:var(--black)}
-.cta::before{content:'';position:absolute;width:700px;height:700px;border-radius:50%;border:1px solid rgba(200,185,154,0.05);top:50%;left:50%;transform:translate(-50%,-50%)}
-.cta::after{content:'';position:absolute;width:1100px;height:1100px;border-radius:50%;border:1px solid rgba(200,185,154,0.025);top:50%;left:50%;transform:translate(-50%,-50%)}
-.cta-title{font-family:'Cormorant',serif;font-size:clamp(3rem,8vw,7rem);font-weight:300;line-height:1;margin-bottom:1.5rem;position:relative;z-index:1}
-.cta-title em{font-style:italic;color:var(--accent)}
-.cta-sub{font-size:0.85rem;color:var(--muted-dark);margin-bottom:4rem;position:relative;z-index:1;line-height:1.7;max-width:380px;margin-left:auto;margin-right:auto}
-.cta-btn{display:inline-flex;align-items:center;gap:1.5rem;padding:1.3rem 3.5rem;border:1px solid rgba(200,185,154,0.3);color:var(--white);text-decoration:none;font-size:0.72rem;letter-spacing:0.28em;text-transform:uppercase;transition:all 0.4s ease;position:relative;z-index:1;overflow:hidden}
-.cta-btn::before{content:'';position:absolute;inset:0;background:var(--accent);transform:translateX(-100%);transition:transform 0.4s ease;z-index:-1}
-.cta-btn:hover{color:var(--black);border-color:var(--accent)}
-.cta-btn:hover::before{transform:translateX(0)}
- 
-footer{padding:3rem;border-top:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;align-items:center;background:var(--black)}
-.footer-logo{font-family:'Cormorant',serif;font-size:1rem;letter-spacing:0.35em;text-transform:uppercase;color:var(--muted-dark)}
-.footer-copy{font-size:0.68rem;color:rgba(90,90,90,0.5);letter-spacing:0.08em}
- 
-/* ANIMATIONS */
-@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
-@keyframes slideUp{from{opacity:0;transform:translateY(110%)}to{opacity:1;transform:translateY(0)}}
-@keyframes slideRight{from{left:-100%}to{left:100%}}
- 
-/* Reveal base */
-.reveal{opacity:0;transform:translateY(36px);transition:opacity 0.9s ease,transform 0.9s ease}
-.reveal.visible{opacity:1;transform:translateY(0)}
-.reveal-left{opacity:0;transform:translateX(-40px);transition:opacity 0.9s ease,transform 0.9s ease}
-.reveal-left.visible{opacity:1;transform:translateX(0)}
-.reveal-right{opacity:0;transform:translateX(40px);transition:opacity 0.9s ease,transform 0.9s ease}
-.reveal-right.visible{opacity:1;transform:translateX(0)}
- 
-/* Count-up numbers */
-.stat-num[data-count]{opacity:0;transition:opacity 0.5s ease}
-.stat-num[data-count].counting{opacity:1}
- 
-@media(max-width:900px){
-  nav{padding:1.5rem}
-  .hero{padding:0 1.5rem 3.5rem}
-  .problem,.how-inner,.forwhom-inner,.lead-inner{padding-left:0;padding-right:0}
-  .problem,.lead-feature,.forwhom,.how{padding-left:1.5rem;padding-right:1.5rem}
-  .lead-header{grid-template-columns:1fr;gap:2.5rem}
-  .how-steps{grid-template-columns:1fr 1fr}
-  .forwhom-grid,.demo-cards{grid-template-columns:1fr}
-  .fw-item{border-left:none;border-top:1px solid rgba(8,8,8,0.08)}
-  .stats-inner{grid-template-columns:1fr}
-  .stat-item{border-right:none;border-bottom:1px solid rgba(255,255,255,0.06)}
-  .cta{padding:8rem 1.5rem}
-  footer{flex-direction:column;gap:1rem;text-align:center;padding:2rem 1.5rem}
+html{scroll-behavior:smooth;}
+body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif;font-weight:300;overflow-x:hidden;}
+#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0.4;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:1.4rem 5rem;background:rgba(6,6,8,0.7);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:0.5px solid var(--border);}
+.logo{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:1.5rem;letter-spacing:0.28em;color:var(--gold);text-transform:uppercase;}
+nav a{color:var(--gray);text-decoration:none;font-size:0.78rem;letter-spacing:0.14em;text-transform:uppercase;transition:color 0.3s;}
+nav a:hover{color:var(--gold);}
+.hero{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:8rem 2rem 6rem;}
+.hero-eyebrow{font-size:0.7rem;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold);margin-bottom:2.5rem;opacity:0;animation:fadeUp 0.8s ease 0.2s forwards;}
+.hero h1{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(4rem,9vw,9rem);line-height:0.98;letter-spacing:-0.02em;max-width:1100px;margin-bottom:2rem;opacity:0;animation:fadeUp 0.9s ease 0.4s forwards;}
+.hero h1 em{font-style:italic;color:var(--gold);}
+.hero-sub{font-size:1.1rem;color:var(--gray);max-width:520px;line-height:1.75;margin-bottom:4rem;font-weight:300;opacity:0;animation:fadeUp 0.9s ease 0.6s forwards;}
+.cta-group{display:flex;align-items:center;gap:2.5rem;flex-wrap:wrap;justify-content:center;opacity:0;animation:fadeUp 0.9s ease 0.8s forwards;}
+.btn-primary{display:inline-block;padding:1.05rem 3rem;background:var(--gold);color:var(--black);text-decoration:none;font-size:0.78rem;letter-spacing:0.16em;text-transform:uppercase;font-weight:500;transition:opacity 0.3s;position:relative;overflow:hidden;}
+.btn-primary:hover{opacity:0.85;}
+.btn-ghost{display:inline-flex;align-items:center;gap:0.5rem;font-size:0.78rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--gray);text-decoration:none;transition:color 0.3s;}
+.btn-ghost::after{content:'→';transition:transform 0.3s;}
+.btn-ghost:hover{color:var(--white);}
+.btn-ghost:hover::after{transform:translateX(6px);}
+.scroll-hint{position:absolute;bottom:3rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:0.5rem;opacity:0;animation:fadeUp 1s ease 1.4s forwards;}
+.scroll-line{width:0.5px;height:48px;background:linear-gradient(to bottom,transparent,var(--gold),transparent);animation:scrollPulse 2s ease-in-out infinite;}
+.scroll-label{font-size:0.62rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--gray);}
+.numbers{position:relative;z-index:1;border-top:0.5px solid var(--border);border-bottom:0.5px solid var(--border);display:grid;grid-template-columns:repeat(3,1fr);}
+.number-item{padding:4rem 2rem;text-align:center;border-right:0.5px solid var(--border);position:relative;overflow:hidden;}
+.number-item:last-child{border-right:none;}
+.number-item::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(201,169,110,0.05),transparent 70%);pointer-events:none;}
+.number-big{font-family:'Cormorant Garamond',serif;font-size:clamp(3rem,5vw,5rem);font-weight:300;color:var(--gold);line-height:1;margin-bottom:0.6rem;display:block;}
+.number-label{font-size:0.78rem;letter-spacing:0.1em;color:var(--gray);}
+section{position:relative;z-index:1;}
+.section-inner{padding:10rem 5rem;}
+.section-label{font-size:0.68rem;letter-spacing:0.26em;text-transform:uppercase;color:var(--gold);margin-bottom:1.5rem;display:flex;align-items:center;gap:0.8rem;}
+.section-label::before{content:'';display:inline-block;width:28px;height:0.5px;background:var(--gold);}
+.section-h2{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(2.5rem,4.5vw,4.2rem);line-height:1.08;margin-bottom:2rem;}
+.section-h2 em{font-style:italic;color:var(--gold);}
+.promise-grid{display:grid;grid-template-columns:1fr 1fr;gap:8rem;align-items:center;border-bottom:0.5px solid var(--border);}
+.promise-text p{color:var(--gray);line-height:1.85;font-size:0.98rem;max-width:420px;}
+.stat-stack{display:flex;flex-direction:column;gap:0;}
+.stat-item{padding:2.5rem;border:0.5px solid var(--border);position:relative;overflow:hidden;transition:border-color 0.4s;}
+.stat-item:not(:last-child){border-bottom:none;}
+.stat-item:hover{border-color:var(--border2);}
+.stat-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,transparent,var(--gold),transparent);opacity:0;transition:opacity 0.4s;}
+.stat-item:hover::before{opacity:1;}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:3.8rem;font-weight:300;color:var(--gold);line-height:1;margin-bottom:0.4rem;}
+.stat-desc{font-size:0.82rem;color:var(--gray);letter-spacing:0.05em;}
+.steps-section{border-bottom:0.5px solid var(--border);}
+.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);margin-top:5rem;}
+.step{padding:3rem 2.5rem;border-left:0.5px solid var(--border);position:relative;overflow:hidden;transition:background 0.4s;}
+.step:last-child{border-right:0.5px solid var(--border);}
+.step:hover{background:rgba(201,169,110,0.03);}
+.step-num{font-family:'Cormorant Garamond',serif;font-size:5rem;font-weight:300;color:rgba(201,169,110,0.1);line-height:1;margin-bottom:2rem;transition:color 0.4s;}
+.step:hover .step-num{color:rgba(201,169,110,0.22);}
+.step-title{font-size:0.95rem;font-weight:500;margin-bottom:0.75rem;letter-spacing:0.03em;}
+.step-desc{font-size:0.83rem;color:var(--gray);line-height:1.75;}
+.features-section{border-bottom:0.5px solid var(--border);}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);margin-top:5rem;}
+.feature{padding:3rem;border:0.5px solid var(--border);margin:-0.5px -0.5px 0 0;position:relative;overflow:hidden;transition:background 0.4s;}
+.feature:hover{background:rgba(201,169,110,0.025);}
+.feature-icon{width:36px;height:36px;margin-bottom:2rem;color:var(--gold);opacity:0.85;}
+.feature-title{font-size:0.95rem;font-weight:500;margin-bottom:0.6rem;}
+.feature-desc{font-size:0.82rem;color:var(--gray);line-height:1.75;}
+.portfolio-section{border-bottom:0.5px solid var(--border);}
+.portfolio-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;margin-top:5rem;}
+.p-card{border:0.5px solid var(--border);overflow:hidden;text-decoration:none;display:block;transition:all 0.5s;position:relative;}
+.p-card:hover{border-color:rgba(201,169,110,0.4);transform:translateY(-5px);}
+.iframe-wrap{width:100%;height:230px;overflow:hidden;background:#0d0d0f;}
+.iframe-wrap iframe{width:200%;height:200%;transform:scale(0.5);transform-origin:top left;pointer-events:none;border:none;}
+.p-info{padding:1.4rem 1.75rem;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.p-name{font-size:0.85rem;font-weight:500;letter-spacing:0.05em;}
+.p-link{font-size:0.7rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);text-decoration:none;display:flex;align-items:center;gap:0.5rem;transition:gap 0.3s;}
+.p-link:hover{gap:0.8rem;}
+.pricing-section{border-bottom:0.5px solid var(--border);}
+.pricing-center{display:flex;flex-direction:column;align-items:center;text-align:center;}
+.pricing-center .section-label{justify-content:center;}
+.pricing-card{max-width:560px;width:100%;margin:4rem auto 0;border:0.5px solid var(--gold);padding:4.5rem;position:relative;background:rgba(201,169,110,0.02);}
+.pricing-badge{position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--black);font-size:0.63rem;letter-spacing:0.2em;text-transform:uppercase;padding:0.4rem 1.5rem;font-weight:500;white-space:nowrap;}
+.price{font-family:'Cormorant Garamond',serif;font-size:6rem;font-weight:300;color:var(--gold);line-height:1;margin-bottom:0.3rem;}
+.price sup{font-size:2.2rem;vertical-align:super;}
+.price-note{font-size:0.78rem;color:var(--gray);letter-spacing:0.1em;margin-bottom:3.5rem;}
+.price-list{list-style:none;text-align:left;margin-bottom:3.5rem;display:flex;flex-direction:column;gap:1.1rem;}
+.price-list li{font-size:0.9rem;color:var(--gray);display:flex;align-items:center;gap:0.9rem;}
+.price-list li::before{content:'';display:inline-block;width:18px;height:0.5px;background:var(--gold);flex-shrink:0;}
+.price-list li strong{color:var(--white);font-weight:400;}
+.guarantee{margin-top:2rem;padding:1.75rem 2rem;background:rgba(201,169,110,0.04);border:0.5px solid var(--border);font-size:0.82rem;color:var(--gray);line-height:1.75;text-align:center;}
+.guarantee strong{color:var(--gold);font-weight:400;}
+.final-cta{padding:14rem 5rem;text-align:center;position:relative;}
+.final-cta::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:900px;height:900px;background:radial-gradient(circle,rgba(201,169,110,0.05) 0%,transparent 65%);pointer-events:none;}
+.final-cta h2{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(3.5rem,7vw,7rem);line-height:1.05;margin-bottom:2.5rem;}
+.final-cta h2 em{font-style:italic;color:var(--gold);}
+.final-cta p{color:var(--gray);font-size:1rem;margin-bottom:4rem;}
+footer{border-top:0.5px solid var(--border);padding:2.5rem 5rem;display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1;}
+.footer-logo{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:1.3rem;letter-spacing:0.22em;color:var(--gold);text-transform:uppercase;}
+.footer-text{font-size:0.75rem;color:var(--gray);letter-spacing:0.06em;}
+.reveal{opacity:0;transform:translateY(32px);transition:opacity 0.9s ease,transform 0.9s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px);}to{opacity:1;transform:translateY(0);}}
+@keyframes scrollPulse{0%,100%{opacity:0.3;}50%{opacity:1;}}
+@media(max-width:1024px){
+  nav{padding:1.4rem 2rem;}
+  .section-inner{padding:6rem 2rem;}
+  .promise-grid{grid-template-columns:1fr;gap:4rem;}
+  .steps-grid{grid-template-columns:1fr 1fr;}
+  .features-grid{grid-template-columns:1fr 1fr;}
+  .portfolio-grid{grid-template-columns:1fr;}
+  .numbers{grid-template-columns:1fr;}
+  .number-item{border-right:none;border-bottom:0.5px solid var(--border);}
+  .number-item:last-child{border-bottom:none;}
+  footer{padding:2rem;flex-direction:column;gap:1rem;text-align:center;}
+  .final-cta{padding:10rem 2rem;}
 }
 </style>
 </head>
 <body>
  
-<div id="scroll-line"></div>
-<div class="cursor" id="cursor"></div>
-<div class="cursor-ring" id="cursorRing"></div>
+<canvas id="bg-canvas"></canvas>
  
-<!-- DROPLET INTRO -->
-<div id="intro" style="position:fixed;inset:0;z-index:99000;background:#080808;display:flex;align-items:center;justify-content:center;flex-direction:column;transition:opacity 1.2s ease">
-  <canvas id="dropCanvas" style="position:absolute;inset:0;width:100%;height:100%"></canvas>
-  <div id="introLogo" style="position:relative;z-index:2;font-family:'Cormorant',serif;font-size:clamp(3rem,8vw,6rem);font-weight:300;letter-spacing:0.5em;text-transform:uppercase;color:#f4f1ec;opacity:0;transform:scale(0.92);transition:opacity 1.2s ease,transform 1.4s ease;text-indent:0.5em">Veld</div>
-  <div id="introSub" style="position:relative;z-index:2;font-family:'DM Sans',sans-serif;font-size:0.6rem;letter-spacing:0.4em;text-transform:uppercase;color:#c8b99a;opacity:0;margin-top:1rem;transition:opacity 0.8s ease">Desarrollo web premium</div>
-</div>
- 
-<!-- CAPTURE -->
-<div id="capture">
-  <div class="cap-backdrop"></div>
-  <div class="cap-frame"></div>
-  <div class="cap-inner">
-    <span class="cap-tag">Veld · Acceso privado</span>
-    <div class="cap-headline" id="capHeadline">
-      <span id="typedText"></span><span class="typed-cursor" id="typedCursor"></span>
-    </div>
-    <div class="cap-form" id="capForm">
-      <label class="cap-label" for="emailInput">Tu email profesional</label>
-      <div class="cap-input-wrap">
-        <input type="email" id="emailInput" class="cap-input" placeholder="nombre@empresa.com" autocomplete="off"/>
-        <button class="cap-submit" id="submitBtn">Entrar →</button>
-      </div>
-      <button class="cap-skip" id="skipBtn">Prefiero explorar solo</button>
-    </div>
-    <div class="cap-success" id="capSuccess">
-      <div class="suc-title">Perfecto.<br><em>Vamos al grano.</em></div>
-      <p class="suc-sub">En breve te contactamos.<br>Mientras tanto, explorá cómo construimos webs que traen clientes.</p>
-      <button class="suc-btn" id="closeSuccess">Ver cómo funciona →</button>
-    </div>
-  </div>
-</div>
- 
-<nav id="mainNav">
-  <a href="#" class="logo">Veld</a>
-  <a href="#contacto" class="nav-cta">Hablemos →</a>
+<nav>
+  <div class="logo">Veld</div>
+  <a href="#contacto">Empezar proyecto</a>
 </nav>
  
-<!-- HERO — DARK -->
 <section class="hero">
-  <canvas id="heroCanvas"></canvas>
-  <div class="hero-overlay"></div>
-  <div class="hero-bg-letter">V</div>
-  <p class="hero-eyebrow"><span>Desarrollo web · Real estate &amp; negocios premium</span></p>
-  <h1 class="hero-title">
-    <span class="line"><span>Tu sitio web</span></span>
-    <span class="line"><span>que <em>vende</em></span></span>
-    <span class="line"><span>por vos.</span></span>
-  </h1>
-  <div class="hero-bottom">
-    <p class="hero-sub">Construimos el sitio web de tu negocio con captación de leads integrada. Tus clientes llegan solos.</p>
-    <div class="hero-scroll"><div class="scroll-line"></div>Scrollear</div>
+  <div class="hero-eyebrow">Diseño web premium — Argentina &amp; Uruguay</div>
+  <h1>Tu sitio.<br><em>48 horas.</em><br>O no pagás.</h1>
+  <p class="hero-sub">Diseñamos y desarrollamos tu presencia digital con estética de primer nivel. Solo pagás si te gusta el resultado.</p>
+  <div class="cta-group">
+    <a href="#contacto" class="btn-primary">Quiero mi sitio</a>
+    <a href="#proceso" class="btn-ghost">Ver cómo funciona</a>
+  </div>
+  <div class="scroll-hint">
+    <span class="scroll-label">Scroll</span>
+    <div class="scroll-line"></div>
   </div>
 </section>
  
-<!-- PROBLEM — LIGHT -->
-<section class="problem">
-  <div class="problem-inner">
-    <div class="section-tag reveal">El problema</div>
-    <p class="problem-text reveal">
-      <span class="dim">Tenés un negocio serio.</span>
-      Pero tu web no lo refleja — y peor,
-      <em>no te trae ni un solo lead.</em>
-      <span class="dim">Cada visita que perdés es una operación que no cierra.</span>
-    </p>
+<div class="numbers reveal">
+  <div class="number-item">
+    <span class="number-big" data-target="48" data-suffix="hs">48hs</span>
+    <span class="number-label">De la idea al sitio terminado</span>
   </div>
-</section>
- 
-<!-- STATS — DARK -->
-<section class="stats-band">
-  <div class="stats-inner">
-    <div class="stat-item">
-      <span class="stat-num" data-count="3" data-suffix="×">0×</span>
-      <div class="stat-label">Más conversiones que un sitio sin captación activa</div>
-    </div>
-    <div class="stat-item">
-      <span class="stat-num" data-count="24" data-suffix="/7">0</span>
-      <div class="stat-label">El sistema trabaja y captura leads mientras vos cerrás</div>
-    </div>
-    <div class="stat-item">
-      <span class="stat-num" data-count="0" data-suffix=" plataformas">—</span>
-      <div class="stat-label">Dependencia de Zonaprop, Argenprop o cualquier tercero</div>
-    </div>
+  <div class="number-item">
+    <span class="number-big" data-target="390" data-prefix="USD ">USD 390</span>
+    <span class="number-label">Precio único, todo incluido</span>
   </div>
-</section>
+  <div class="number-item">
+    <span class="number-big" data-target="0" data-prefix="$">$0</span>
+    <span class="number-label">Si no quedás conforme</span>
+  </div>
+</div>
  
-<!-- LEAD FEATURE — LIGHT -->
-<section class="lead-feature" id="demo">
-  <div class="lead-inner">
-    <div class="lead-header">
-      <div class="reveal-left">
-        <div class="section-tag">La diferencia Veld</div>
-        <h2 class="lead-title">Un sitio que<br><em>captura leads</em><br>mientras dormís.</h2>
-      </div>
-      <div class="lead-explain reveal-right">
-        <p>No construimos sitios de catálogo. Construimos <strong>máquinas de captación</strong>.</p>
-        <br>
-        <p>Cada visitante que entra a tu web es un lead potencial. Con nuestro sistema de IA integrado, el sitio entiende qué busca cada usuario, le muestra lo más relevante de tu portfolio — y te entrega sus datos antes de que se vaya.</p>
-        <br>
-        <p><strong>Probalo ahora.</strong> Escribí lo que buscaría uno de tus clientes.</p>
-      </div>
+<section class="reveal">
+  <div class="section-inner promise-grid" id="nosotros">
+    <div class="promise-text">
+      <div class="section-label">La promesa Veld</div>
+      <h2 class="section-h2">Sin riesgos.<br><em>Sin sorpresas.</em></h2>
+      <p>Creemos que un sitio web premium no debería requerir meses de espera ni pagos por adelantado. Hacemos el trabajo primero. Vos decidís después.</p>
     </div>
- 
-    <div class="lead-demo reveal">
-      <div class="demo-topbar">
-        <div class="demo-dots"><div class="demo-dot"></div><div class="demo-dot"></div><div class="demo-dot"></div></div>
-        <div class="demo-url">tunegocio.com · Buscador con IA</div>
-        <div class="demo-badge">Live demo</div>
-      </div>
-      <div class="demo-body">
-        <div class="demo-chips" id="demoChips">
-          <button class="demo-chip" onclick="runSearch(this.textContent)">Departamento luminoso cerca del río</button>
-          <button class="demo-chip" onclick="runSearch(this.textContent)">Casa con jardín para familia</button>
-          <button class="demo-chip" onclick="runSearch(this.textContent)">Penthouse con vista panorámica</button>
-          <button class="demo-chip" onclick="runSearch(this.textContent)">Algo tranquilo lejos del ruido</button>
-        </div>
-        <div class="demo-search-wrap">
-          <input type="text" class="demo-search-input" id="demoInput" placeholder="Describí la propiedad ideal…"/>
-          <button class="demo-search-btn" id="demoBtn" onclick="runSearch()">Buscar →</button>
-        </div>
-        <div class="demo-thinking" id="demoThinking">
-          <div class="think-dots"><span></span><span></span><span></span></div>
-          <span id="thinkText">Analizando tu búsqueda…</span>
-        </div>
-        <div class="demo-results" id="demoResults">
-          <div class="demo-results-meta" id="demoMeta"></div>
-          <div class="demo-cards" id="demoCards"></div>
-        </div>
-      </div>
+    <div class="stat-stack">
+      <div class="stat-item"><div class="stat-num">48hs</div><div class="stat-desc">De la idea al sitio terminado</div></div>
+      <div class="stat-item"><div class="stat-num">$0</div><div class="stat-desc">Si no quedás conforme, no pagás nada</div></div>
+      <div class="stat-item"><div class="stat-num">1</div><div class="stat-desc">Revisión incluida sin costo adicional</div></div>
     </div>
   </div>
 </section>
  
-<!-- HOW IT WORKS — DARK -->
-<section class="how">
-  <div class="how-inner">
-    <div class="section-tag light reveal">Cómo funciona</div>
-    <h2 class="how-title reveal">Del brief al sitio<br>que <em>trabaja solo.</em></h2>
-    <div class="how-steps">
-      <div class="how-step reveal" data-n="1">
-        <div class="step-label">Paso uno</div>
-        <div class="step-title">Entendemos tu negocio</div>
-        <p class="step-desc">Una conversación. Sin formularios eternos. Entendemos qué vendés, a quién le hablás y qué resultado necesitás.</p>
+<section class="steps-section reveal" id="proceso">
+  <div class="section-inner">
+    <div class="section-label">El proceso</div>
+    <h2 class="section-h2">Cuatro pasos.<br><em>Un resultado.</em></h2>
+    <div class="steps-grid">
+      <div class="step"><div class="step-num">01</div><div class="step-title">Nos contactás</div><div class="step-desc">Contanos tu negocio, tu idea y lo que necesitás. Una conversación de 15 minutos es suficiente.</div></div>
+      <div class="step"><div class="step-num">02</div><div class="step-title">Diseñamos</div><div class="step-desc">En 48 horas tenés tu sitio completo: diseño, desarrollo, dominio y hosting configurados.</div></div>
+      <div class="step"><div class="step-num">03</div><div class="step-title">Lo revisás</div><div class="step-desc">Si algo no cierra, lo ajustamos. Una revisión incluida para que quede exactamente como lo imaginaste.</div></div>
+      <div class="step"><div class="step-num">04</div><div class="step-title">Pagás si te gusta</div><div class="step-desc">Solo abonás los USD 390 si el resultado te convence. Sin eso, no hay transacción.</div></div>
+    </div>
+  </div>
+</section>
+ 
+<section class="features-section reveal" id="incluye">
+  <div class="section-inner">
+    <div class="section-label">Todo incluido</div>
+    <h2 class="section-h2">Nada que agregar.<br><em>Nada que pagar aparte.</em></h2>
+    <div class="features-grid">
+      <div class="feature">
+        <svg class="feature-icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1"><rect x="4" y="4" width="24" height="18" rx="1"/><line x1="4" y1="28" x2="28" y2="28"/><line x1="16" y1="22" x2="16" y2="28"/></svg>
+        <div class="feature-title">Diseño a medida</div>
+        <div class="feature-desc">Cada sitio es único. No usamos templates genéricos ni diseños copiados.</div>
       </div>
-      <div class="how-step reveal" data-n="2">
-        <div class="step-label">Paso dos</div>
-        <div class="step-title">Diseñamos el sistema</div>
-        <p class="step-desc">Web + identidad + captación integrada. Todo pensado para que cada visitante tenga razones para dejarte sus datos.</p>
+      <div class="feature">
+        <svg class="feature-icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1"><circle cx="16" cy="16" r="12"/><line x1="16" y1="4" x2="16" y2="28"/><path d="M4 16 Q10 12 16 16 Q22 20 28 16"/></svg>
+        <div class="feature-title">Dominio + hosting</div>
+        <div class="feature-desc">Registramos tu dominio y configuramos el hosting. Todo listo para salir al aire.</div>
       </div>
-      <div class="how-step reveal" data-n="3">
-        <div class="step-label">Paso tres</div>
-        <div class="step-title">Lo lanzamos</div>
-        <p class="step-desc">Sitio en vivo, buscador con IA funcionando, formularios conectados. En semanas, no meses.</p>
+      <div class="feature">
+        <svg class="feature-icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1"><rect x="8" y="4" width="16" height="24" rx="1"/><line x1="12" y1="10" x2="20" y2="10"/><line x1="12" y1="14" x2="20" y2="14"/></svg>
+        <div class="feature-title">Mobile-first</div>
+        <div class="feature-desc">Perfecto en cualquier dispositivo. Diseñamos mobile primero, siempre.</div>
       </div>
-      <div class="how-step reveal" data-n="4">
-        <div class="step-label">Paso cuatro</div>
-        <div class="step-title">Recibís leads</div>
-        <p class="step-desc">Los contactos llegan directo a tu WhatsApp o CRM. Vos cerrás operaciones. Nosotros mantenemos el sistema.</p>
+      <div class="feature">
+        <svg class="feature-icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1"><path d="M6 20 L12 14 L16 18 L22 10 L28 14"/><line x1="6" y1="26" x2="28" y2="26"/></svg>
+        <div class="feature-title">SEO + velocidad</div>
+        <div class="feature-desc">Optimización para buscadores y carga ultra-rápida desde el primer día.</div>
+      </div>
+      <div class="feature">
+        <svg class="feature-icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1"><path d="M28 20 L20 20 L16 28 L12 20 L4 20 L4 6 L28 6 Z"/></svg>
+        <div class="feature-title">Formulario de contacto</div>
+        <div class="feature-desc">Tus clientes te contactan directo desde el sitio, sin fricciones.</div>
+      </div>
+      <div class="feature">
+        <svg class="feature-icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1"><path d="M16 4 L20 12 L28 13 L22 19 L24 28 L16 24 L8 28 L10 19 L4 13 L12 12 Z"/></svg>
+        <div class="feature-title">1 revisión incluida</div>
+        <div class="feature-desc">Ajustamos lo que necesités después de la entrega. Sin costo adicional.</div>
       </div>
     </div>
   </div>
 </section>
  
-<!-- FOR WHOM — LIGHT -->
-<section class="forwhom">
-  <div class="forwhom-inner">
-    <div class="section-tag reveal">Para quién</div>
-    <h2 class="forwhom-title reveal">Negocios que no quieren<br><em>parecer</em> — quieren <em>vender.</em></h2>
-    <div class="forwhom-grid">
-      <div class="fw-item reveal">
-        <div class="fw-icon">◈</div>
-        <div class="fw-name">Brokers &amp;<br>Agencias inmobiliarias</div>
-        <p class="fw-desc">Portfolio propio, buscador inteligente y captación directa. Sin pagar comisión a plataformas.</p>
-        <div class="fw-tag">Nicho principal</div>
+<section class="portfolio-section reveal" id="portfolio">
+  <div class="section-inner">
+    <div class="section-label">Trabajos realizados</div>
+    <h2 class="section-h2">Lo que hacemos<br><em>habla por sí solo.</em></h2>
+    <div class="portfolio-grid">
+      <div class="p-card">
+        <div class="iframe-wrap"><iframe src="https://soulab.com.ar/" scrolling="no" loading="lazy" title="Soulab Argentina"></iframe></div>
+        <div class="p-info"><div class="p-name">Soulab Argentina</div><a href="https://soulab.com.ar/" target="_blank" class="p-link">Ver sitio →</a></div>
       </div>
-      <div class="fw-item reveal">
-        <div class="fw-icon">◇</div>
-        <div class="fw-name">Estudios de<br>arquitectura</div>
-        <p class="fw-desc">Una presencia digital al nivel de los proyectos que diseñás. Que los clientes lleguen por tu trabajo.</p>
-        <div class="fw-tag">Expandiendo</div>
+      <div class="p-card">
+        <div class="iframe-wrap"><iframe src="https://soulab-uruguay.com/" scrolling="no" loading="lazy" title="Soulab Uruguay"></iframe></div>
+        <div class="p-info"><div class="p-name">Soulab Uruguay</div><a href="https://soulab-uruguay.com/" target="_blank" class="p-link">Ver sitio →</a></div>
       </div>
-      <div class="fw-item reveal">
-        <div class="fw-icon">○</div>
-        <div class="fw-name">Negocios de<br>servicio premium</div>
-        <p class="fw-desc">Consultoras, estudios jurídicos, hospitality. Donde cada lead vale mucho y la imagen lo es todo.</p>
-        <div class="fw-tag">Disponible</div>
+      <div class="p-card">
+        <div class="iframe-wrap"><iframe src="https://revive-one-umber.vercel.app/" scrolling="no" loading="lazy" title="Revive"></iframe></div>
+        <div class="p-info"><div class="p-name">Revive</div><a href="https://revive-one-umber.vercel.app/" target="_blank" class="p-link">Ver sitio →</a></div>
       </div>
     </div>
   </div>
 </section>
  
-<!-- CTA — DARK -->
-<section class="cta" id="contacto">
-  <h2 class="cta-title reveal">¿Cuántos leads<br>estás <em>perdiendo</em><br>hoy?</h2>
-  <p class="cta-sub reveal">Una conversación de 30 minutos. Te mostramos cómo quedaría tu sitio y cuánto puede cambiar tu captación.</p>
-  <a href="https://wa.me/5493456431651?text=Hola%2C%20quiero%20hablar%20sobre%20mi%20sitio%20web" class="cta-btn reveal">Hablar por WhatsApp <span>→</span></a>
+<section class="pricing-section reveal" id="precio">
+  <div class="section-inner pricing-center">
+    <div class="section-label">Inversión</div>
+    <h2 class="section-h2">Precio único.<br><em>Sin letra chica.</em></h2>
+    <div class="pricing-card">
+      <div class="pricing-badge">Todo incluido</div>
+      <div class="price"><sup>USD</sup>390</div>
+      <div class="price-note">Solo pagás si quedás conforme</div>
+      <ul class="price-list">
+        <li><strong>Diseño 100% personalizado</strong></li>
+        <li><strong>Dominio .com</strong> incluido — primer año</li>
+        <li><strong>Hosting</strong> configurado y activo</li>
+        <li><strong>Mobile-first</strong> y optimizado para SEO</li>
+        <li><strong>Formulario</strong> de contacto funcional</li>
+        <li><strong>1 revisión</strong> sin costo adicional</li>
+        <li>Revisiones adicionales a <strong>USD 50 c/u</strong></li>
+      </ul>
+      <a href="#contacto" class="btn-primary" style="display:block;text-align:center">Empezar ahora</a>
+      <div class="guarantee"><strong>Garantía de satisfacción:</strong> si el sitio no cumple tus expectativas, no pagás. Así de simple.</div>
+    </div>
+  </div>
+</section>
+ 
+<section class="final-cta reveal" id="contacto">
+  <h2>Tu negocio merece<br><em>una presencia a su altura.</em></h2>
+  <p>Escribinos hoy y en 48 horas tenés tu sitio.</p>
+  <a href="https://wa.me/5493456431651?text=Hola%2C%20quiero%20mi%20sitio%20web%20con%20Veld" class="btn-primary">Escribir por WhatsApp</a>
 </section>
  
 <footer>
   <div class="footer-logo">Veld</div>
-  <div class="footer-copy">© 2026 · Desarrollo web premium</div>
+  <div class="footer-text">© 2025 Veld Studio — Diseño web premium</div>
 </footer>
  
 <script>
-// ── Scroll progress line ──
-const scrollLine = document.getElementById('scroll-line');
-window.addEventListener('scroll', ()=>{
-  const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight) * 100;
-  scrollLine.style.width = pct + '%';
-});
- 
-// ── Nav light/dark switch ──
-const mainNav = document.getElementById('mainNav');
-const lightSections = document.querySelectorAll('.problem,.lead-feature,.forwhom');
-const navObs = new IntersectionObserver(entries=>{
-  entries.forEach(e=>{
-    if(e.isIntersecting) mainNav.classList.add('light-nav');
-  });
-  // Check if any light section is visible
-  let anyLight = false;
-  lightSections.forEach(s=>{
-    const r = s.getBoundingClientRect();
-    if(r.top < 80 && r.bottom > 0) anyLight = true;
-  });
-  if(!anyLight) mainNav.classList.remove('light-nav');
-},{threshold:0, rootMargin:'-80px 0px 0px 0px'});
-lightSections.forEach(s=>navObs.observe(s));
- 
-// ── Cursor ──
-const cursor=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
-let mx=0,my=0,rx=0,ry=0;
-document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.left=mx+'px';cursor.style.top=my+'px'});
-(function loop(){rx+=(mx-rx)*0.12;ry+=(my-ry)*0.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(loop)})();
-document.querySelectorAll('a,button,input').forEach(el=>{
-  el.addEventListener('mouseenter',()=>{cursor.style.transform='translate(-50%,-50%) scale(2.5)';ring.style.width=ring.style.height='60px'});
-  el.addEventListener('mouseleave',()=>{cursor.style.transform='translate(-50%,-50%) scale(1)';ring.style.width=ring.style.height='36px'});
-});
-// Cursor color on light sections
-const lightObs2 = new IntersectionObserver(entries=>{
-  let anyLight = false;
-  lightSections.forEach(s=>{const r=s.getBoundingClientRect();if(r.top<window.innerHeight/2&&r.bottom>window.innerHeight/2)anyLight=true});
-  cursor.classList.toggle('light',anyLight);
-  ring.classList.toggle('light',anyLight);
-},{threshold:0});
-lightSections.forEach(s=>lightObs2.observe(s));
- 
-// ── Scroll reveal ──
-const revObs=new IntersectionObserver((entries)=>{
-  entries.forEach((e,i)=>{
-    if(e.isIntersecting){
-      setTimeout(()=>e.target.classList.add('visible'),i*60);
-      revObs.unobserve(e.target);
-    }
-  });
-},{threshold:0.08});
-document.querySelectorAll('.reveal,.reveal-left,.reveal-right').forEach(el=>revObs.observe(el));
- 
-// ── Count-up numbers ──
-const countObs = new IntersectionObserver(entries=>{
-  entries.forEach(e=>{
-    if(!e.isIntersecting) return;
-    const el = e.target;
-    const target = parseInt(el.dataset.count);
-    const suffix = el.dataset.suffix || '';
-    if(target === 0){ el.textContent = '0' + suffix; el.classList.add('counting'); countObs.unobserve(el); return; }
-    el.classList.add('counting');
-    const dur = 1400, steps = 40, inc = target / steps;
-    let cur = 0, step = 0;
-    const iv = setInterval(()=>{
-      step++;
-      cur = Math.min(target, Math.round(inc * step));
-      el.textContent = cur + suffix;
-      if(cur >= target){ clearInterval(iv); }
-    }, dur / steps);
-    countObs.unobserve(el);
-  });
-},{threshold:0.5});
-document.querySelectorAll('.stat-num[data-count]').forEach(el=>countObs.observe(el));
- 
-// ── Typewriter capture ──
-const capture=document.getElementById('capture');
-const typedEl=document.getElementById('typedText');
-const formEl=document.getElementById('capForm');
-const successEl=document.getElementById('capSuccess');
-const segs=[
-  [{t:'Tu sitio web tiene visitas.',i:false}],
-  [{t:'Pero no sabés quiénes son.',i:false},{t:' Y ellos ya se fueron.',i:true}],
-  [{t:'Eso',i:false},{t:' termina hoy.',i:true}],
-];
-function fullLine(idx){return segs[idx].map(s=>s.t).join('')}
-function renderPartial(li,n){let out='',c=0;for(const seg of segs[li]){for(const ch of seg.t){if(c>=n)return out;out+=seg.i?`<em>${ch}</em>`:ch;c++}}return out}
-let li=0,ci=0,phase='typing';
-function type(){
-  const full=fullLine(li);
-  if(phase==='typing'){ci++;typedEl.innerHTML=renderPartial(li,ci);if(ci<full.length){setTimeout(type,38)}else if(li===segs.length-1){setTimeout(()=>formEl.classList.add('show'),700)}else{phase='pause';setTimeout(type,900)}}
-  else if(phase==='pause'){phase='erasing';type()}
-  else{ci--;typedEl.innerHTML=renderPartial(li,ci);if(ci>0){setTimeout(type,16)}else{li++;if(li<segs.length){phase='typing';setTimeout(type,300)}}}
-}
-function closeCapture(){capture.classList.add('closing');setTimeout(()=>{capture.style.display='none'},800)}
-function handleSubmit(){
-  const email=document.getElementById('emailInput').value.trim();
-  if(!email||!email.includes('@')){document.getElementById('emailInput').style.opacity='0.5';return}
-  formEl.style.opacity='0';typedEl.parentElement.style.opacity='0';
-  document.querySelector('.cap-tag').style.opacity='0';
-  document.getElementById('typedCursor').style.display='none';
-  setTimeout(()=>successEl.classList.add('show'),400);
-}
-document.getElementById('submitBtn').addEventListener('click',handleSubmit);
-document.getElementById('emailInput').addEventListener('keydown',e=>{if(e.key==='Enter')handleSubmit()});
-document.getElementById('skipBtn').addEventListener('click',closeCapture);
-document.getElementById('closeSuccess').addEventListener('click',closeCapture);
- 
-// ── AI Property Search Demo ──
-const IMG = {
-  "living_warm": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MDAgNjAwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9InciIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjZjBlYmUzIi8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjZDhkMGM0Ii8+PC9saW5lYXJHcmFkaWVudD48bGluZWFyR3JhZGllbnQgaWQ9ImYiIHgxPSIwIiB5MT0iMCIgeDI9IjAuMiIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNjOGJmYjAiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNiMGE4OTgiLz48L2xpbmVhckdyYWRpZW50PjxmaWx0ZXIgaWQ9ImIiPjxmZUdhdXNzaWFuQmx1ciBzdGREZXZpYXRpb249IjE0Ii8+PC9maWx0ZXI+PC9kZWZzPjxyZWN0IHdpZHRoPSI4MDAiIGhlaWdodD0iNjAwIiBmaWxsPSJ1cmwoI3cpIi8+PHBvbHlnb24gcG9pbnRzPSIwLDQzMCA4MDAsMzg1IDgwMCw2MDAgMCw2MDAiIGZpbGw9InVybCgjZikiLz48ZWxsaXBzZSBjeD0iNjIwIiBjeT0iMTMwIiByeD0iMjIwIiByeT0iMTcwIiBmaWxsPSJyZ2JhKDI1NSwyNDUsMjEwLDAuMjgpIiBmaWx0ZXI9InVybCgjYikiLz48cmVjdCB4PSI0NTAiIHk9IjQ1IiB3aWR0aD0iMjc1IiBoZWlnaHQ9IjMxNSIgZmlsbD0icmdiYSgxOTUsMjI1LDI0NSwwLjE4KSIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuNCkiIHN0cm9rZS13aWR0aD0iMiIvPjxsaW5lIHgxPSI1ODciIHkxPSI0NSIgeDI9IjU4NyIgeTI9IjM2MCIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMjgpIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxsaW5lIHgxPSI0NTAiIHkxPSIyMDUiIHgyPSI3MjUiIHkyPSIyMDUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjI4KSIgc3Ryb2tlLXdpZHRoPSIxLjUiLz48cmVjdCB4PSI1NSIgeT0iMzQwIiB3aWR0aD0iMzQ1IiBoZWlnaHQ9IjEwMCIgcng9IjEwIiBmaWxsPSIjOGE4MDcwIi8+PHJlY3QgeD0iNTUiIHk9IjMwOCIgd2lkdGg9IjM0NSIgaGVpZ2h0PSI0MiIgcng9IjkiIGZpbGw9IiM3NTZhNWMiLz48cmVjdCB4PSI1NSIgeT0iMzQwIiB3aWR0aD0iMzIiIGhlaWdodD0iMTAwIiByeD0iNiIgZmlsbD0iIzc1NmE1YyIvPjxyZWN0IHg9IjM2OCIgeT0iMzQwIiB3aWR0aD0iMzIiIGhlaWdodD0iMTAwIiByeD0iNiIgZmlsbD0iIzc1NmE1YyIvPjxyZWN0IHg9IjEzNSIgeT0iNDUwIiB3aWR0aD0iMjEwIiBoZWlnaHQ9IjExIiByeD0iMyIgZmlsbD0iIzVhNTA0MCIvPjxyZWN0IHg9IjE0MyIgeT0iNDYxIiB3aWR0aD0iOSIgaGVpZ2h0PSIzOCIgZmlsbD0iIzVhNTA0MCIvPjxyZWN0IHg9IjMyNyIgeT0iNDYxIiB3aWR0aD0iOSIgaGVpZ2h0PSIzOCIgZmlsbD0iIzVhNTA0MCIvPjxyZWN0IHg9IjQyNSIgeT0iMjI4IiB3aWR0aD0iNSIgaGVpZ2h0PSIyMDIiIGZpbGw9IiM5YTkwODAiLz48ZWxsaXBzZSBjeD0iNDI4IiBjeT0iMjI2IiByeD0iMzQiIHJ5PSIxOSIgZmlsbD0iI2U4ZTBkMCIvPjxlbGxpcHNlIGN4PSI0MjgiIGN5PSIyNDAiIHJ4PSI3NSIgcnk9IjYwIiBmaWxsPSJyZ2JhKDI1NSwyNDUsMjAwLDAuMTIpIiBmaWx0ZXI9InVybCgjYikiLz48cmVjdCB4PSIyOCIgeT0iMjgiIHdpZHRoPSIxODUiIGhlaWdodD0iMjg1IiBmaWxsPSJyZ2JhKDE5NSwyMjUsMjQ1LDAuMTMpIiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4yMikiIHN0cm9rZS13aWR0aD0iMS41Ii8+PGxpbmUgeDE9IjEyMCIgeTE9IjI4IiB4Mj0iMTIwIiB5Mj0iMzEzIiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4yKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9zdmc+",
-  "kitchen_dark": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MDAgNjAwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2U4ZTJkOCIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2QwYzhiYyIvPjwvbGluZWFyR3JhZGllbnQ+PGZpbHRlciBpZD0iYiI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMTIiLz48L2ZpbHRlcj48L2RlZnM+PHJlY3Qgd2lkdGg9IjgwMCIgaGVpZ2h0PSI2MDAiIGZpbGw9InVybCgjYmcpIi8+PHBvbHlnb24gcG9pbnRzPSIwLDQ2MCA4MDAsNDMwIDgwMCw2MDAgMCw2MDAiIGZpbGw9IiNjMGI4YTgiLz48cmVjdCB4PSIwIiB5PSI5MCIgd2lkdGg9IjgwMCIgaGVpZ2h0PSIyNTgiIGZpbGw9IiMzYTM1MzAiLz48cmVjdCB4PSIwIiB5PSI5MCIgd2lkdGg9IjEzMCIgaGVpZ2h0PSIyNTgiIGZpbGw9IiMyZTJhMjYiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjA2KSIgc3Ryb2tlLXdpZHRoPSIxIi8+PHJlY3QgeD0iMTQyIiB5PSI5MCIgd2lkdGg9IjEzMCIgaGVpZ2h0PSIyNTgiIGZpbGw9IiMyZTJhMjYiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjA2KSIgc3Ryb2tlLXdpZHRoPSIxIi8+PHJlY3QgeD0iMjg0IiB5PSI5MCIgd2lkdGg9IjEzMCIgaGVpZ2h0PSIyNTgiIGZpbGw9IiMyZTJhMjYiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjA2KSIgc3Ryb2tlLXdpZHRoPSIxIi8+PHJlY3QgeD0iNDI2IiB5PSI5MCIgd2lkdGg9IjEzMCIgaGVpZ2h0PSIyNTgiIGZpbGw9IiMyZTJhMjYiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjA2KSIgc3Ryb2tlLXdpZHRoPSIxIi8+PHJlY3QgeD0iNTY4IiB5PSI5MCIgd2lkdGg9IjEzMCIgaGVpZ2h0PSIyNTgiIGZpbGw9IiMyZTJhMjYiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjA2KSIgc3Ryb2tlLXdpZHRoPSIxIi8+PHJlY3QgeD0iNzAwIiB5PSI5MCIgd2lkdGg9IjEwMCIgaGVpZ2h0PSIyNTgiIGZpbGw9IiMyZTJhMjYiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjA2KSIgc3Ryb2tlLXdpZHRoPSIxIi8+PHJlY3QgeD0iMCIgeT0iMzQ4IiB3aWR0aD0iODAwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjYzhiOTlhIi8+PHJlY3QgeD0iMCIgeT0iMzY4IiB3aWR0aD0iODAwIiBoZWlnaHQ9IjkyIiBmaWxsPSIjM2EzNTMwIi8+PHJlY3QgeD0iMCIgeT0iMzY4IiB3aWR0aD0iMTk1IiBoZWlnaHQ9IjkyIiBmaWxsPSIjMmUyYTI2IiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiIHN0cm9rZS13aWR0aD0iMSIvPjxyZWN0IHg9IjIwNyIgeT0iMzY4IiB3aWR0aD0iMTk1IiBoZWlnaHQ9IjkyIiBmaWxsPSIjMmUyYTI2IiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiIHN0cm9rZS13aWR0aD0iMSIvPjxyZWN0IHg9IjQxNCIgeT0iMzY4IiB3aWR0aD0iMTk1IiBoZWlnaHQ9IjkyIiBmaWxsPSIjMmUyYTI2IiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiIHN0cm9rZS13aWR0aD0iMSIvPjxyZWN0IHg9IjYyMSIgeT0iMzY4IiB3aWR0aD0iMTc5IiBoZWlnaHQ9IjkyIiBmaWxsPSIjMmUyYTI2IiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiIHN0cm9rZS13aWR0aD0iMSIvPjxlbGxpcHNlIGN4PSIzMzAiIGN5PSIzNTAiIHJ4PSIyOCIgcnk9IjciIGZpbGw9InJnYmEoMCwwLDAsMC4xOCkiLz48ZWxsaXBzZSBjeD0iNDAwIiBjeT0iMzUwIiByeD0iMjgiIHJ5PSI3IiBmaWxsPSJyZ2JhKDAsMCwwLDAuMTgpIi8+PGVsbGlwc2UgY3g9IjQ3MCIgY3k9IjM1MCIgcng9IjI4IiByeT0iNyIgZmlsbD0icmdiYSgwLDAsMCwwLjE4KSIvPjxyZWN0IHg9IjI5NSIgeT0iOTAiIHdpZHRoPSIyMTAiIGhlaWdodD0iMTcwIiBmaWxsPSJyZ2JhKDE5NSwyMjUsMjQ1LDAuMTgpIiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4xOCkiIHN0cm9rZS13aWR0aD0iMS41Ii8+PGVsbGlwc2UgY3g9IjQwMCIgY3k9IjE2NSIgcng9IjE1MCIgcnk9IjExMCIgZmlsbD0icmdiYSgyNTUsMjQ1LDIxMCwwLjE0KSIgZmlsdGVyPSJ1cmwoI2IpIi8+PGxpbmUgeDE9IjMxMCIgeTE9IjAiIHgyPSIzMTAiIHkyPSI5MiIgc3Ryb2tlPSIjODg4IiBzdHJva2Utd2lkdGg9IjIiLz48ZWxsaXBzZSBjeD0iMzEwIiBjeT0iOTQiIHJ4PSIyNiIgcnk9IjEyIiBmaWxsPSIjNzc3Ii8+PGxpbmUgeDE9IjQ5MCIgeTE9IjAiIHgyPSI0OTAiIHkyPSI5MiIgc3Ryb2tlPSIjODg4IiBzdHJva2Utd2lkdGg9IjIiLz48ZWxsaXBzZSBjeD0iNDkwIiBjeT0iOTQiIHJ4PSIyNiIgcnk9IjEyIiBmaWxsPSIjNzc3Ii8+PC9zdmc+",
-  "bedroom_minimal": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MDAgNjAwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2YyZWRlNiIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2UwZDhjYyIvPjwvbGluZWFyR3JhZGllbnQ+PGZpbHRlciBpZD0icyI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMTAiLz48L2ZpbHRlcj48L2RlZnM+PHJlY3Qgd2lkdGg9IjgwMCIgaGVpZ2h0PSI2MDAiIGZpbGw9InVybCgjYmcpIi8+PHBvbHlnb24gcG9pbnRzPSIwLDQ0NSA4MDAsNDA1IDgwMCw2MDAgMCw2MDAiIGZpbGw9IiNjOGMwYjQiLz48cmVjdCB4PSIxMDAiIHk9IjYwIiB3aWR0aD0iNjAwIiBoZWlnaHQ9IjgiIGZpbGw9IiNkMGM4YmMiLz48cmVjdCB4PSIxMzgiIHk9IjI5NSIgd2lkdGg9IjUyNCIgaGVpZ2h0PSIxNDAiIHJ4PSI3IiBmaWxsPSIjOWE5Mjg1Ii8+PHJlY3QgeD0iMTQ2IiB5PSIyNzAiIHdpZHRoPSI1MDgiIGhlaWdodD0iMTA2IiByeD0iOSIgZmlsbD0iI2U4ZTBkNCIvPjxyZWN0IHg9IjE2OCIgeT0iMjU0IiB3aWR0aD0iMTQ4IiBoZWlnaHQ9IjU4IiByeD0iMTEiIGZpbGw9IiNmNGYwZWEiLz48cmVjdCB4PSI0ODQiIHk9IjI1NCIgd2lkdGg9IjE0OCIgaGVpZ2h0PSI1OCIgcng9IjExIiBmaWxsPSIjZjRmMGVhIi8+PHJlY3QgeD0iMzE4IiB5PSIyNTgiIHdpZHRoPSIxNjQiIGhlaWdodD0iNTIiIHJ4PSI5IiBmaWxsPSIjZGRkOGQwIi8+PHJlY3QgeD0iMTQ2IiB5PSIzNDUiIHdpZHRoPSI1MDgiIGhlaWdodD0iNTgiIHJ4PSI1IiBmaWxsPSIjYjBhODk4Ii8+PHJlY3QgeD0iNDIiIHk9IjMwOCIgd2lkdGg9IjgyIiBoZWlnaHQ9Ijg4IiByeD0iNSIgZmlsbD0iI2MwYjhhYyIvPjxyZWN0IHg9IjY3NiIgeT0iMzA4IiB3aWR0aD0iODIiIGhlaWdodD0iODgiIHJ4PSI1IiBmaWxsPSIjYzBiOGFjIi8+PHJlY3QgeD0iNzYiIHk9IjI2NSIgd2lkdGg9IjQiIGhlaWdodD0iNDYiIGZpbGw9IiNhMDk4OTAiLz48ZWxsaXBzZSBjeD0iNzgiIGN5PSIyNjMiIHJ4PSIyMiIgcnk9IjExIiBmaWxsPSIjZTBkOGNjIi8+PGVsbGlwc2UgY3g9Ijc4IiBjeT0iMjcwIiByeD0iNTUiIHJ5PSI0NCIgZmlsbD0icmdiYSgyNTUsMjQwLDIwMCwwLjEpIiBmaWx0ZXI9InVybCgjcykiLz48cmVjdCB4PSI3MjAiIHk9IjI2NSIgd2lkdGg9IjQiIGhlaWdodD0iNDYiIGZpbGw9IiNhMDk4OTAiLz48ZWxsaXBzZSBjeD0iNzIyIiBjeT0iMjYzIiByeD0iMjIiIHJ5PSIxMSIgZmlsbD0iI2UwZDhjYyIvPjxlbGxpcHNlIGN4PSI3MjIiIGN5PSIyNzAiIHJ4PSI1NSIgcnk9IjQ0IiBmaWxsPSJyZ2JhKDI1NSwyNDAsMjAwLDAuMSkiIGZpbHRlcj0idXJsKCNzKSIvPjxyZWN0IHg9IjMxNSIgeT0iNTAiIHdpZHRoPSIxNzAiIGhlaWdodD0iMTk1IiBmaWxsPSJyZ2JhKDE5NSwyMjUsMjQ1LDAuMikiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjMpIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxsaW5lIHgxPSI0MDAiIHkxPSI1MCIgeDI9IjQwMCIgeTI9IjI0NSIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMjIpIiBzdHJva2Utd2lkdGg9IjEiLz48ZWxsaXBzZSBjeD0iNjMwIiBjeT0iMTAwIiByeD0iMTQwIiByeT0iMTEwIiBmaWxsPSJyZ2JhKDI1NSwyNDUsMjEwLDAuMjIpIiBmaWx0ZXI9InVybCgjcykiLz48L3N2Zz4=",
-  "view_city": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MDAgNjAwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9InNreSIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMxYTI1MzUiLz48c3RvcCBvZmZzZXQ9IjU1JSIgc3RvcC1jb2xvcj0iIzJhNDA2MCIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2M4ODA0MCIvPjwvbGluZWFyR3JhZGllbnQ+PGxpbmVhckdyYWRpZW50IGlkPSJzZWEiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMWEzMDUwIi8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMGExODI4Ii8+PC9saW5lYXJHcmFkaWVudD48ZmlsdGVyIGlkPSJoYXplIj48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI1Ii8+PC9maWx0ZXI+PGZpbHRlciBpZD0iZ2xvdyI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMTgiLz48L2ZpbHRlcj48L2RlZnM+PHJlY3Qgd2lkdGg9IjgwMCIgaGVpZ2h0PSI2MDAiIGZpbGw9InVybCgjc2t5KSIvPjxlbGxpcHNlIGN4PSI2NDAiIGN5PSI4MCIgcng9IjEwMCIgcnk9Ijc1IiBmaWxsPSJyZ2JhKDI1NSwyMDAsODAsMC4xOCkiIGZpbHRlcj0idXJsKCNnbG93KSIvPjxlbGxpcHNlIGN4PSI2NDAiIGN5PSI4MCIgcng9IjI4IiByeT0iMjIiIGZpbGw9InJnYmEoMjU1LDIzMCwxNjAsMC44NSkiLz48cmVjdCB4PSIwIiB5PSIzNzAiIHdpZHRoPSI4MDAiIGhlaWdodD0iMjMwIiBmaWxsPSJ1cmwoI3NlYSkiLz48cmVjdCB4PSIwIiB5PSIzNzAiIHdpZHRoPSI4MDAiIGhlaWdodD0iNCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA4KSIvPjxyZWN0IHg9IjU4MCIgeT0iMzc0IiB3aWR0aD0iODAiIGhlaWdodD0iMyIgcng9IjEiIGZpbGw9InJnYmEoMjU1LDIyMCwxMjAsMC4zKSIvPjxyZWN0IHg9IjU5NSIgeT0iMzgxIiB3aWR0aD0iNTUiIGhlaWdodD0iMiIgcng9IjEiIGZpbGw9InJnYmEoMjU1LDIyMCwxMjAsMC4yKSIvPjxyZWN0IHg9IjIwIiB5PSIxODAiIHdpZHRoPSI0OCIgaGVpZ2h0PSIxOTUiIGZpbGw9IiMxYTIwMzAiIGZpbHRlcj0idXJsKCNoYXplKSIvPjxyZWN0IHg9IjgwIiB5PSIyMjAiIHdpZHRoPSIzOCIgaGVpZ2h0PSIxNTUiIGZpbGw9IiMxYTIwMzAiIGZpbHRlcj0idXJsKCNoYXplKSIvPjxyZWN0IHg9IjEzMCIgeT0iMTU1IiB3aWR0aD0iNTUiIGhlaWdodD0iMjIwIiBmaWxsPSIjMWEyMDMwIiBmaWx0ZXI9InVybCgjaGF6ZSkiLz48cmVjdCB4PSIyMDAiIHk9IjE5NSIgd2lkdGg9IjQyIiBoZWlnaHQ9IjE4MCIgZmlsbD0iIzFhMjAzMCIgZmlsdGVyPSJ1cmwoI2hhemUpIi8+PHJlY3QgeD0iMjU1IiB5PSIxNzAiIHdpZHRoPSI2MCIgaGVpZ2h0PSIyMDUiIGZpbGw9IiMxYTIwMzAiIGZpbHRlcj0idXJsKCNoYXplKSIvPjxyZWN0IHg9IjMzMCIgeT0iMTQwIiB3aWR0aD0iNTAiIGhlaWdodD0iMjM1IiBmaWxsPSIjMWEyMDMwIiBmaWx0ZXI9InVybCgjaGF6ZSkiLz48cmVjdCB4PSIzOTUiIHk9IjE5MCIgd2lkdGg9IjQ1IiBoZWlnaHQ9IjE4NSIgZmlsbD0iIzFhMjAzMCIgZmlsdGVyPSJ1cmwoI2hhemUpIi8+PHJlY3QgeD0iNDU1IiB5PSIxNjAiIHdpZHRoPSI1OCIgaGVpZ2h0PSIyMTUiIGZpbGw9IiMxYTIwMzAiIGZpbHRlcj0idXJsKCNoYXplKSIvPjxyZWN0IHg9IjUyNSIgeT0iMjAwIiB3aWR0aD0iNDAiIGhlaWdodD0iMTc1IiBmaWxsPSIjMWEyMDMwIiBmaWx0ZXI9InVybCgjaGF6ZSkiLz48cmVjdCB4PSI1NzgiIHk9IjE3NSIgd2lkdGg9IjUyIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzFhMjAzMCIgZmlsdGVyPSJ1cmwoI2hhemUpIi8+PHJlY3QgeD0iNjQ1IiB5PSIyMTAiIHdpZHRoPSI0NCIgaGVpZ2h0PSIxNjUiIGZpbGw9IiMxYTIwMzAiIGZpbHRlcj0idXJsKCNoYXplKSIvPjxyZWN0IHg9IjcwMiIgeT0iMTg1IiB3aWR0aD0iNTUiIGhlaWdodD0iMTkwIiBmaWxsPSIjMWEyMDMwIiBmaWx0ZXI9InVybCgjaGF6ZSkiLz48cmVjdCB4PSIyNCIgeT0iMTg0IiB3aWR0aD0iMyIgaGVpZ2h0PSIzIiBmaWxsPSJyZ2JhKDI1NSwyNDAsMTgwLDAuOCkiLz48cmVjdCB4PSIxMzUiIHk9IjE2MCIgd2lkdGg9IjMiIGhlaWdodD0iMyIgZmlsbD0icmdiYSgyNTUsMjQwLDE4MCwwLjgpIi8+PHJlY3QgeD0iMjYwIiB5PSIxNzUiIHdpZHRoPSIzIiBoZWlnaHQ9IjMiIGZpbGw9InJnYmEoMjU1LDI0MCwxODAsMC44KSIvPjxyZWN0IHg9IjMzNSIgeT0iMTQ1IiB3aWR0aD0iMyIgaGVpZ2h0PSIzIiBmaWxsPSJyZ2JhKDI1NSwyNDAsMTgwLDAuOSkiLz48cmVjdCB4PSI0NjAiIHk9IjE2NSIgd2lkdGg9IjMiIGhlaWdodD0iMyIgZmlsbD0icmdiYSgyNTUsMjQwLDE4MCwwLjgpIi8+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjM4IiBoZWlnaHQ9IjYwMCIgZmlsbD0icmdiYSgyMCwxNiwxMiwwLjcpIi8+PHJlY3QgeD0iNzYyIiB5PSIwIiB3aWR0aD0iMzgiIGhlaWdodD0iNjAwIiBmaWxsPSJyZ2JhKDIwLDE2LDEyLDAuNykiLz48cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iODAwIiBoZWlnaHQ9IjMwIiBmaWxsPSJyZ2JhKDIwLDE2LDEyLDAuNykiLz48cmVjdCB4PSIwIiB5PSI1NzAiIHdpZHRoPSI4MDAiIGhlaWdodD0iMzAiIGZpbGw9InJnYmEoMjAsMTYsMTIsMC43KSIvPjwvc3ZnPg==",
-  "pool_outdoor": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MDAgNjAwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9InNreSIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNiOGQ0ZTgiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNkOGVhZjUiLz48L2xpbmVhckdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0icG9vbCIgeDE9IjAiIHkxPSIwIiB4Mj0iMC4zIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzRhOWZjMCIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzJhN2E5YSIvPjwvbGluZWFyR3JhZGllbnQ+PGxpbmVhckdyYWRpZW50IGlkPSJkZWNrIiB4MT0iMCIgeTE9IjAiIHgyPSIwIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2UwZDhjYyIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2QwYzhiYyIvPjwvbGluZWFyR3JhZGllbnQ+PGZpbHRlciBpZD0iciI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMyIvPjwvZmlsdGVyPjxmaWx0ZXIgaWQ9InMiPjxmZUdhdXNzaWFuQmx1ciBzdGREZXZpYXRpb249IjgiLz48L2ZpbHRlcj48L2RlZnM+PHJlY3Qgd2lkdGg9IjgwMCIgaGVpZ2h0PSI2MDAiIGZpbGw9InVybCgjc2t5KSIvPjxlbGxpcHNlIGN4PSI2NjAiIGN5PSIxMTAiIHJ4PSIxMTAiIHJ5PSI4NSIgZmlsbD0icmdiYSgyNTUsMjQ1LDIwMCwwLjMpIiBmaWx0ZXI9InVybCgjcykiLz48ZWxsaXBzZSBjeD0iNjYwIiBjeT0iMTEwIiByeD0iMzgiIHJ5PSIzMCIgZmlsbD0icmdiYSgyNTUsMjUwLDIyMCwwLjkpIi8+PHJlY3QgeD0iMCIgeT0iMjk1IiB3aWR0aD0iODAwIiBoZWlnaHQ9IjMwNSIgZmlsbD0idXJsKCNkZWNrKSIvPjxyZWN0IHg9IjcwIiB5PSIzMDUiIHdpZHRoPSI2NjAiIGhlaWdodD0iMjMwIiByeD0iOCIgZmlsbD0idXJsKCNwb29sKSIvPjxyZWN0IHg9IjcwIiB5PSIzMDUiIHdpZHRoPSI2NjAiIGhlaWdodD0iOCIgcng9IjQiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4zNSkiLz48ZWxsaXBzZSBjeD0iMzAwIiBjeT0iNDE1IiByeD0iOTAiIHJ5PSIxNSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjEpIiBmaWx0ZXI9InVybCgjcikiLz48ZWxsaXBzZSBjeD0iNjAwIiBjeT0iMzYwIiByeD0iNTAiIHJ5PSIyMiIgZmlsbD0icmdiYSgyNTUsMjQ1LDE4MCwwLjI1KSIvPjxyZWN0IHg9Ijg4IiB5PSIyNjIiIHdpZHRoPSIxNDgiIGhlaWdodD0iNDIiIHJ4PSI3IiBmaWxsPSIjZThlMGQ0Ii8+PHJlY3QgeD0iNTY1IiB5PSIyNjIiIHdpZHRoPSIxNDgiIGhlaWdodD0iNDIiIHJ4PSI3IiBmaWxsPSIjZThlMGQ0Ii8+PGVsbGlwc2UgY3g9IjEyMCIgY3k9IjIyMCIgcng9IjY1IiByeT0iODUiIGZpbGw9IiM1YTg4NTAiIG9wYWNpdHk9IjAuNzUiLz48ZWxsaXBzZSBjeD0iNjgwIiBjeT0iMjA1IiByeD0iNzAiIHJ5PSI5MCIgZmlsbD0iIzVhODg1MCIgb3BhY2l0eT0iMC43NSIvPjwvc3ZnPg==",
-  "garden_sunny": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MDAgNjAwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9InNreSIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNjMGQ4ZjAiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNkOGVhZmMiLz48L2xpbmVhckdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0iZ3Jhc3MiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjNmE5ODUwIi8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjNTA3ODQwIi8+PC9saW5lYXJHcmFkaWVudD48ZmlsdGVyIGlkPSJzb2Z0Ij48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSI3Ii8+PC9maWx0ZXI+PC9kZWZzPjxyZWN0IHdpZHRoPSI4MDAiIGhlaWdodD0iNjAwIiBmaWxsPSJ1cmwoI3NreSkiLz48ZWxsaXBzZSBjeD0iNjgwIiBjeT0iMTAwIiByeD0iOTUiIHJ5PSI3NSIgZmlsbD0icmdiYSgyNTUsMjQ1LDIwMCwwLjI4KSIgZmlsdGVyPSJ1cmwoI3NvZnQpIi8+PGVsbGlwc2UgY3g9IjY4MCIgY3k9IjEwMCIgcng9IjMyIiByeT0iMjYiIGZpbGw9InJnYmEoMjU1LDI1MCwyMjAsMC44OCkiLz48cmVjdCB4PSIwIiB5PSIzNDAiIHdpZHRoPSI4MDAiIGhlaWdodD0iMjYwIiBmaWxsPSJ1cmwoI2dyYXNzKSIvPjxwb2x5Z29uIHBvaW50cz0iMzEwLDM0MCA0OTAsMzQwIDUyNSw2MDAgMjc1LDYwMCIgZmlsbD0iI2EwOTA2MCIgb3BhY2l0eT0iMC43Ii8+PGVsbGlwc2UgY3g9IjExMCIgY3k9IjI0NSIgcng9Ijg1IiByeT0iMTEwIiBmaWxsPSIjNGE3ODM4IiBmaWx0ZXI9InVybCgjc29mdCkiLz48ZWxsaXBzZSBjeD0iNzUiIGN5PSIyMDAiIHJ4PSI2NSIgcnk9Ijg1IiBmaWxsPSIjNWE4ODQ1IiBvcGFjaXR5PSIwLjc1Ii8+PHJlY3QgeD0iMTAyIiB5PSIzMjgiIHdpZHRoPSIxNiIgaGVpZ2h0PSI5NSIgZmlsbD0iIzZhNTAzMCIvPjxlbGxpcHNlIGN4PSI2OTAiIGN5PSIyMzAiIHJ4PSI5MCIgcnk9IjExNSIgZmlsbD0iIzRhNzgzOCIgZmlsdGVyPSJ1cmwoI3NvZnQpIi8+PGVsbGlwc2UgY3g9IjcyNSIgY3k9IjE4NSIgcng9IjY4IiByeT0iODgiIGZpbGw9IiM1YTg4NDUiIG9wYWNpdHk9IjAuNzUiLz48cmVjdCB4PSI2ODIiIHk9IjMyMCIgd2lkdGg9IjE2IiBoZWlnaHQ9Ijk1IiBmaWxsPSIjNmE1MDMwIi8+PHJlY3QgeD0iMjQwIiB5PSIxNjgiIHdpZHRoPSIzMjAiIGhlaWdodD0iMjEwIiBmaWxsPSIjZThlMGQ0Ii8+PHBvbHlnb24gcG9pbnRzPSIyMTgsMTcwIDU4MiwxNzAgNTA1LDEwOCAyOTUsMTA4IiBmaWxsPSIjYzBiOGFjIi8+PHJlY3QgeD0iMjY0IiB5PSIyMTgiIHdpZHRoPSIxMDgiIGhlaWdodD0iODgiIGZpbGw9InJnYmEoMTk1LDIyNSwyNDUsMC40KSIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMykiIHN0cm9rZS13aWR0aD0iMS41Ii8+PHJlY3QgeD0iNDI4IiB5PSIyMTgiIHdpZHRoPSIxMDgiIGhlaWdodD0iODgiIGZpbGw9InJnYmEoMTk1LDIyNSwyNDUsMC40KSIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMykiIHN0cm9rZS13aWR0aD0iMS41Ii8+PHJlY3QgeD0iMzQyIiB5PSIyNzAiIHdpZHRoPSIxMTYiIGhlaWdodD0iMTA4IiByeD0iNCIgZmlsbD0iI2M4YjA5MCIvPjwvc3ZnPg==",
-  "exterior_modern": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MDAgNjAwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9InNreSIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNiMGM4ZTgiLz48c3RvcCBvZmZzZXQ9IjUwJSIgc3RvcC1jb2xvcj0iI2M4ZGRmMiIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2UwZWVmYSIvPjwvbGluZWFyR3JhZGllbnQ+PGZpbHRlciBpZD0ic29mdCI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iOCIvPjwvZmlsdGVyPjwvZGVmcz48cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0idXJsKCNza3kpIi8+PGVsbGlwc2UgY3g9IjY2MCIgY3k9IjEwMCIgcng9IjExMCIgcnk9Ijg1IiBmaWxsPSJyZ2JhKDI1NSwyNDUsMjAwLDAuMjUpIiBmaWx0ZXI9InVybCgjc29mdCkiLz48ZWxsaXBzZSBjeD0iNjYwIiBjeT0iMTAwIiByeD0iMzUiIHJ5PSIyOCIgZmlsbD0icmdiYSgyNTUsMjUwLDIyMCwwLjg1KSIvPjxlbGxpcHNlIGN4PSIyMDAiIGN5PSI0MDAiIHJ4PSIzMjAiIHJ5PSIxNjAiIGZpbGw9IiM4YWFhNzAiIG9wYWNpdHk9IjAuNTUiIGZpbHRlcj0idXJsKCNzb2Z0KSIvPjxlbGxpcHNlIGN4PSI2MTAiIGN5PSIzODAiIHJ4PSIyOTAiIHJ5PSIxNDAiIGZpbGw9IiM3YTlhNjAiIG9wYWNpdHk9IjAuNSIgZmlsdGVyPSJ1cmwoI3NvZnQpIi8+PHJlY3QgeD0iMCIgeT0iNDU1IiB3aWR0aD0iODAwIiBoZWlnaHQ9IjE0NSIgZmlsbD0iIzlhOTg4MCIvPjxyZWN0IHg9IjE0NSIgeT0iMjE1IiB3aWR0aD0iNTEwIiBoZWlnaHQ9IjI3NSIgZmlsbD0iI2U4ZTRkZSIvPjxyZWN0IHg9IjExNSIgeT0iMjE1IiB3aWR0aD0iNTcwIiBoZWlnaHQ9IjE4IiBmaWxsPSIjYzBiOGIwIi8+PHJlY3QgeD0iMjAwIiB5PSIyNTgiIHdpZHRoPSIxMTUiIGhlaWdodD0iOTIiIGZpbGw9InJnYmEoMTk1LDIyNSwyNDUsMC4zNSkiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjMpIiBzdHJva2Utd2lkdGg9IjIiLz48cmVjdCB4PSI0ODUiIHk9IjI1OCIgd2lkdGg9IjExNSIgaGVpZ2h0PSI5MiIgZmlsbD0icmdiYSgxOTUsMjI1LDI0NSwwLjM1KSIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMykiIHN0cm9rZS13aWR0aD0iMiIvPjxyZWN0IHg9IjMzNSIgeT0iMjQ4IiB3aWR0aD0iMTMwIiBoZWlnaHQ9IjEwMiIgZmlsbD0icmdiYSgxOTUsMjI1LDI0NSwwLjM1KSIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMykiIHN0cm9rZS13aWR0aD0iMiIvPjxyZWN0IHg9IjM0MCIgeT0iMzgwIiB3aWR0aD0iMTIwIiBoZWlnaHQ9IjExMCIgcng9IjQiIGZpbGw9IiNjOGI4YTAiLz48ZWxsaXBzZSBjeD0iNzUiIGN5PSIyODUiIHJ4PSI3MiIgcnk9Ijk1IiBmaWxsPSIjNGE3ODM4IiBvcGFjaXR5PSIwLjgyIi8+PHJlY3QgeD0iNjciIHk9IjM2MiIgd2lkdGg9IjE1IiBoZWlnaHQ9IjkyIiBmaWxsPSIjNmE1MDMwIi8+PGVsbGlwc2UgY3g9IjcyOCIgY3k9IjI2OCIgcng9Ijc2IiByeT0iOTgiIGZpbGw9IiM0YTc4MzgiIG9wYWNpdHk9IjAuODIiLz48cmVjdCB4PSI3MjAiIHk9IjM1MCIgd2lkdGg9IjE1IiBoZWlnaHQ9IjEwNCIgZmlsbD0iIzZhNTAzMCIvPjwvc3ZnPg==",
-  "terrace_view": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MDAgNjAwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9InNreSIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMwYTE4MjgiLz48c3RvcCBvZmZzZXQ9IjQ1JSIgc3RvcC1jb2xvcj0iIzFhMzA1MCIvPjxzdG9wIG9mZnNldD0iNzUlIiBzdG9wLWNvbG9yPSIjYzg2MDIwIi8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjZTg4MDMwIi8+PC9saW5lYXJHcmFkaWVudD48bGluZWFyR3JhZGllbnQgaWQ9InNlYSIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMxYTM4NTgiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMwYTE4MjgiLz48L2xpbmVhckdyYWRpZW50PjxmaWx0ZXIgaWQ9Imdsb3ciPjxmZUdhdXNzaWFuQmx1ciBzdGREZXZpYXRpb249IjIwIi8+PC9maWx0ZXI+PGZpbHRlciBpZD0iaGF6ZSI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iNCIvPjwvZmlsdGVyPjwvZGVmcz48cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0idXJsKCNza3kpIi8+PGVsbGlwc2UgY3g9IjY4MCIgY3k9IjI4MCIgcng9IjE2MCIgcnk9IjEyMCIgZmlsbD0icmdiYSgyNTUsMTQwLDMwLDAuMjUpIiBmaWx0ZXI9InVybCgjZ2xvdykiLz48ZWxsaXBzZSBjeD0iNjgwIiBjeT0iMjgwIiByeD0iNDUiIHJ5PSIzNSIgZmlsbD0icmdiYSgyNTUsMjAwLDgwLDAuNykiLz48cmVjdCB4PSIwIiB5PSIzNjAiIHdpZHRoPSI4MDAiIGhlaWdodD0iMjQwIiBmaWxsPSJ1cmwoI3NlYSkiLz48cmVjdCB4PSI1MjAiIHk9IjM2MyIgd2lkdGg9IjEyMCIgaGVpZ2h0PSI0IiByeD0iMiIgZmlsbD0icmdiYSgyNTUsMTgwLDYwLDAuMzUpIi8+PHJlY3QgeD0iMTAiIHk9IjE2OCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjE5OCIgZmlsbD0iIzE1MTAxMCIgZmlsdGVyPSJ1cmwoI2hhemUpIi8+PHJlY3QgeD0iNjIiIHk9IjIwNSIgd2lkdGg9IjM1IiBoZWlnaHQ9IjE2MCIgZmlsbD0iIzE1MTAxMCIgZmlsdGVyPSJ1cmwoI2hhemUpIi8+PHJlY3QgeD0iMTEwIiB5PSIxNzgiIHdpZHRoPSI0OCIgaGVpZ2h0PSIxODgiIGZpbGw9IiMxNTEwMTAiIGZpbHRlcj0idXJsKCNoYXplKSIvPjxyZWN0IHg9IjE3MiIgeT0iMTk4IiB3aWR0aD0iMzgiIGhlaWdodD0iMTY4IiBmaWxsPSIjMTUxMDEwIiBmaWx0ZXI9InVybCgjaGF6ZSkiLz48cmVjdCB4PSIyMjUiIHk9IjE2MiIgd2lkdGg9IjUyIiBoZWlnaHQ9IjIwNCIgZmlsbD0iIzE1MTAxMCIgZmlsdGVyPSJ1cmwoI2hhemUpIi8+PHJlY3QgeD0iMjkwIiB5PSIxODgiIHdpZHRoPSI0MiIgaGVpZ2h0PSIxNzgiIGZpbGw9IiMxNTEwMTAiIGZpbHRlcj0idXJsKCNoYXplKSIvPjxyZWN0IHg9IjM0NSIgeT0iMTcyIiB3aWR0aD0iNTUiIGhlaWdodD0iMTk0IiBmaWxsPSIjMTUxMDEwIiBmaWx0ZXI9InVybCgjaGF6ZSkiLz48cmVjdCB4PSIxNCIgeT0iMTcyIiB3aWR0aD0iMyIgaGVpZ2h0PSIzIiBmaWxsPSJyZ2JhKDI1NSwyMzUsMTUwLDAuOSkiLz48cmVjdCB4PSIxMTUiIHk9IjE4MiIgd2lkdGg9IjMiIGhlaWdodD0iMyIgZmlsbD0icmdiYSgyNTUsMjM1LDE1MCwwLjkpIi8+PHJlY3QgeD0iMjMwIiB5PSIxNjciIHdpZHRoPSIzIiBoZWlnaHQ9IjMiIGZpbGw9InJnYmEoMjU1LDIzNSwxNTAsMC45KSIvPjxyZWN0IHg9IjM1MCIgeT0iMTc3IiB3aWR0aD0iMyIgaGVpZ2h0PSIzIiBmaWxsPSJyZ2JhKDI1NSwyMzUsMTUwLDAuOSkiLz48cmVjdCB4PSIwIiB5PSI0NDAiIHdpZHRoPSI4MDAiIGhlaWdodD0iMTYwIiBmaWxsPSIjMWUxYTE2Ii8+PHJlY3QgeD0iMCIgeT0iNDQwIiB3aWR0aD0iODAwIiBoZWlnaHQ9IjgiIGZpbGw9IiNjOGI5OWEiLz48cmVjdCB4PSI2MCIgeT0iMzgwIiB3aWR0aD0iMTYwIiBoZWlnaHQ9IjY1IiByeD0iNSIgZmlsbD0iIzJhMjUyMCIvPjxyZWN0IHg9IjU4MCIgeT0iMzkwIiB3aWR0aD0iMTYwIiBoZWlnaHQ9IjU1IiByeD0iNSIgZmlsbD0iIzJhMjUyMCIvPjwvc3ZnPg==",
-  "dining_warm": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MDAgNjAwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImJnIiB4MT0iMCIgeTE9IjAiIHgyPSIwIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2VkZThkZiIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2Q4ZDBjNCIvPjwvbGluZWFyR3JhZGllbnQ+PGZpbHRlciBpZD0icyI+PGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMTIiLz48L2ZpbHRlcj48L2RlZnM+PHJlY3Qgd2lkdGg9IjgwMCIgaGVpZ2h0PSI2MDAiIGZpbGw9InVybCgjYmcpIi8+PHBvbHlnb24gcG9pbnRzPSIwLDQ0MCA4MDAsNDAwIDgwMCw2MDAgMCw2MDAiIGZpbGw9IiNjMGI4YTgiLz48ZWxsaXBzZSBjeD0iNDAwIiBjeT0iMTgwIiByeD0iMTgwIiByeT0iMTQwIiBmaWxsPSJyZ2JhKDI1NSwyNDUsMjEwLDAuMykiIGZpbHRlcj0idXJsKCNzKSIvPjxsaW5lIHgxPSI0MDAiIHkxPSIwIiB4Mj0iNDAwIiB5Mj0iMTQwIiBzdHJva2U9IiM4ODgiIHN0cm9rZS13aWR0aD0iMyIvPjxlbGxpcHNlIGN4PSI0MDAiIGN5PSIxNDIiIHJ4PSI1NSIgcnk9IjI1IiBmaWxsPSIjZTBkOGNjIi8+PHJlY3QgeD0iMTcwIiB5PSIyOTAiIHdpZHRoPSI0NjAiIGhlaWdodD0iMjIiIHJ4PSI1IiBmaWxsPSIjOGE4MDcwIi8+PHJlY3QgeD0iMTcwIiB5PSIzMTIiIHdpZHRoPSI0NjAiIGhlaWdodD0iMTIiIHJ4PSIzIiBmaWxsPSIjNzU2YTVjIi8+PHJlY3QgeD0iMTcyIiB5PSIzMjQiIHdpZHRoPSI4IiBoZWlnaHQ9IjU1IiBmaWxsPSIjNzU2YTVjIi8+PHJlY3QgeD0iNjIwIiB5PSIzMjQiIHdpZHRoPSI4IiBoZWlnaHQ9IjU1IiBmaWxsPSIjNzU2YTVjIi8+PHJlY3QgeD0iMTQ0IiB5PSIyNDIiIHdpZHRoPSI4MCIgaGVpZ2h0PSIxMDAiIHJ4PSI2IiBmaWxsPSIjNmE2MDUwIi8+PHJlY3QgeD0iNTc2IiB5PSIyNDIiIHdpZHRoPSI4MCIgaGVpZ2h0PSIxMDAiIHJ4PSI2IiBmaWxsPSIjNmE2MDUwIi8+PHJlY3QgeD0iMjU4IiB5PSIyMzUiIHdpZHRoPSI4MCIgaGVpZ2h0PSIxMDgiIHJ4PSI2IiBmaWxsPSIjNmE2MDUwIi8+PHJlY3QgeD0iNDYyIiB5PSIyMzUiIHdpZHRoPSI4MCIgaGVpZ2h0PSIxMDgiIHJ4PSI2IiBmaWxsPSIjNmE2MDUwIi8+PGNpcmNsZSBjeD0iMTk1IiBjeT0iMjgyIiByPSIyMiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDIwMCwxODUsMTU0LDAuNCkiIHN0cm9rZS13aWR0aD0iMS41Ii8+PGNpcmNsZSBjeD0iNDAwIiBjeT0iMjc2IiByPSIyMiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDIwMCwxODUsMTU0LDAuNCkiIHN0cm9rZS13aWR0aD0iMS41Ii8+PGNpcmNsZSBjeD0iNjA1IiBjeT0iMjgyIiByPSIyMiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDIwMCwxODUsMTU0LDAuNCkiIHN0cm9rZS13aWR0aD0iMS41Ii8+PHJlY3QgeD0iMjQwIiB5PSI1MCIgd2lkdGg9IjE0MCIgaGVpZ2h0PSIyMjAiIGZpbGw9InJnYmEoMTk1LDIyNSwyNDUsMC4xOCkiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjI1KSIgc3Ryb2tlLXdpZHRoPSIxLjUiLz48cmVjdCB4PSI0MjAiIHk9IjUwIiB3aWR0aD0iMTQwIiBoZWlnaHQ9IjIyMCIgZmlsbD0icmdiYSgxOTUsMjI1LDI0NSwwLjE4KSIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMjUpIiBzdHJva2Utd2lkdGg9IjEuNSIvPjwvc3ZnPg==",
-};
-function roomImg(label) {
-  const map = {
-    "Living": IMG["living_warm"],
-    "Cocina": IMG["kitchen_dark"],
-    "Dormitorio": IMG["bedroom_minimal"],
-    "Vista": IMG["view_city"],
-    "Piscina": IMG["pool_outdoor"],
-    "Jardín": IMG["garden_sunny"],
-    "Exterior": IMG["exterior_modern"],
-    "Terraza": IMG["terrace_view"],
-    "Suite": IMG["bedroom_minimal"],
-    "Vista Río": IMG["view_city"],
-    "Comedor": IMG["dining_warm"],
-    "Galería": IMG["exterior_modern"],
-    "Patio": IMG["garden_sunny"],
+(function(){
+  var canvas=document.getElementById('bg-canvas');
+  var ctx=canvas.getContext('2d');
+  var W,H,particles=[];
+  var GOLD='rgba(201,169,110,';
+  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+  resize();
+  window.addEventListener('resize',resize);
+  function Particle(){this.reset();}
+  Particle.prototype.reset=function(){
+    this.x=Math.random()*W;this.y=Math.random()*H;
+    this.r=Math.random()*1.1+0.2;this.alpha=Math.random()*0.45+0.1;
+    this.vx=(Math.random()-0.5)*0.12;this.vy=(Math.random()-0.5)*0.12;
+    this.life=0;this.maxLife=Math.random()*280+180;
   };
-  return map[label] || IMG['living_warm'];
-}
- 
-const PROPS=[
-  {
-    type:'Departamento',name:'Palermo Soho · Piso 8',loc:'Palermo, CABA',
-    tags:['luminoso','moderno','balcón','río','joven'],
-    rooms:[
-      {label:'Living',    x:28,y:55, bg:'#c9bfb0', img:''},
-      {label:'Cocina',    x:55,y:30, bg:'#b8b0a2', img:''},
-      {label:'Dormitorio',x:72,y:62, bg:'#a89f92', img:''},
-      {label:'Vista',     x:15,y:22, bg:'#8fa3b0', img:''},
-    ]
-  },
-  {
-    type:'Casa',name:'Jardín & Piscina · Nordelta',loc:'Tigre, GBA Norte',
-    tags:['jardín','piscina','familia','hijos','espacio'],
-    rooms:[
-      {label:'Living',    x:25,y:50, bg:'#c2b8a8', img:''},
-      {label:'Jardín',    x:60,y:25, bg:'#9aac98', img:''},
-      {label:'Piscina',   x:75,y:65, bg:'#7fa8b8', img:''},
-      {label:'Comedor',   x:40,y:72, bg:'#b8ad9e', img:''},
-    ]
-  },
-  {
-    type:'Penthouse',name:'Vue · Torre Catalinas',loc:'Retiro, CABA',
-    tags:['penthouse','vista','panorámica','lujo','terraza'],
-    rooms:[
-      {label:'Terraza',   x:20,y:25, bg:'#8899aa', img:''},
-      {label:'Living',    x:50,y:55, bg:'#c8bfb2', img:''},
-      {label:'Suite',     x:75,y:35, bg:'#a8a090', img:''},
-      {label:'Vista',     x:35,y:70, bg:'#7090a8', img:''},
-    ]
-  },
-  {
-    type:'Casa',name:'Chacra Serrana',loc:'La Cumbre, Córdoba',
-    tags:['tranquilo','naturaleza','silencio','campo','descanso'],
-    rooms:[
-      {label:'Living',    x:30,y:55, bg:'#b8b0a0', img:''},
-      {label:'Exterior',  x:65,y:28, bg:'#9aaa88', img:''},
-      {label:'Dormitorio',x:70,y:65, bg:'#a09888', img:''},
-      {label:'Galería',   x:18,y:30, bg:'#b0a898', img:''},
-    ]
-  },
-  {
-    type:'Departamento',name:'Ribera · Puerto Madero',loc:'Puerto Madero, CABA',
-    tags:['río','luminoso','moderno','ejecutivo'],
-    rooms:[
-      {label:'Living',    x:25,y:52, bg:'#c0b8a8', img:''},
-      {label:'Vista Río', x:58,y:22, bg:'#7898b0', img:''},
-      {label:'Dormitorio',x:74,y:60, bg:'#a8a090', img:''},
-      {label:'Cocina',    x:42,y:75, bg:'#b0a898', img:''},
-    ]
-  },
-  {
-    type:'Dúplex',name:'Belgrano R · Clásico',loc:'Belgrano, CABA',
-    tags:['familia','espacio','tranquilo','barrio','colegio'],
-    rooms:[
-      {label:'Living',    x:28,y:48, bg:'#bab0a0', img:''},
-      {label:'Comedor',   x:55,y:32, bg:'#b0a898', img:''},
-      {label:'Dormitorio',x:72,y:65, bg:'#a89f92', img:''},
-      {label:'Patio',     x:18,y:68, bg:'#9aac98', img:''},
-    ]
-  },
-];
- 
-const THINK=['Analizando tu búsqueda…','Entendiendo lo que buscás…','Comparando portfolio…','Ordenando por relevancia…'];
- 
-async function runSearch(query){
-  const inp=document.getElementById('demoInput');
-  const q=query||inp.value.trim();if(!q)return;if(query)inp.value=query;
-  const btn=document.getElementById('demoBtn'),thinking=document.getElementById('demoThinking'),results=document.getElementById('demoResults'),thinkTxt=document.getElementById('thinkText');
-  btn.disabled=true;results.classList.remove('on');thinking.classList.add('on');
-  let pi=0;const iv=setInterval(()=>{pi=(pi+1)%THINK.length;thinkTxt.textContent=THINK[pi]},650);
-  try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-      model:'claude-sonnet-4-20250514',max_tokens:1000,
-      system:`Sos un motor de búsqueda semántica para propiedades premium. Dado texto libre en español, devolvé SOLO JSON con: "summary"(frase corta 2da persona), "ranked"(array índices 0-5 por relevancia), "scores"(array 6 nums 0-100), "reasons"(array 6 strings máx 8 palabras).
-Propiedades: ${PROPS.map((p,i)=>`[${i}] ${p.name} (${p.loc}) Tags:${p.tags.join(',')}`).join(' | ')}
-SOLO JSON válido, sin markdown.`,
-      messages:[{role:'user',content:q}]
-    })});
-    const data=await res.json();
-    let parsed;try{parsed=JSON.parse((data.content?.[0]?.text||'{}').replace(/```json|```/g,''))}catch{parsed={ranked:[0,1,2,3,4,5],scores:[82,70,62,54,44,36],reasons:PROPS.map(()=>'Coincidencia general'),summary:'Propiedades relevantes'}}
-    clearInterval(iv);thinking.classList.remove('on');renderResults(parsed);
-  }catch{
-    clearInterval(iv);thinking.classList.remove('on');
-    renderResults({ranked:[0,1,2,3,4,5],scores:[88,72,65,58,45,38],reasons:['Alta coincidencia','Buena coincidencia','Moderada','Algunas características','Parcial','Baja'],summary:'Propiedades ordenadas'});
+  Particle.prototype.update=function(){
+    this.x+=this.vx;this.y+=this.vy;this.life++;
+    if(this.life>this.maxLife||this.x<-10||this.x>W+10||this.y<-10||this.y>H+10)this.reset();
+  };
+  for(var i=0;i<100;i++){var p=new Particle();p.life=Math.random()*p.maxLife;particles.push(p);}
+  var mouse={x:W/2,y:H/2};
+  document.addEventListener('mousemove',function(e){mouse.x=e.clientX;mouse.y=e.clientY;});
+  function drawOrb(x,y,r,a){
+    var g=ctx.createRadialGradient(x,y,0,x,y,r);
+    g.addColorStop(0,GOLD+a+')');g.addColorStop(0.45,GOLD+(a*0.28)+')');g.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
   }
-  btn.disabled=false;
-}
- 
-function renderResults(parsed){
-  const grid=document.getElementById('demoCards'),meta=document.getElementById('demoMeta'),results=document.getElementById('demoResults');
-  const ranked=parsed.ranked||[0,1,2,3,4,5],scores=parsed.scores||ranked.map(()=>70),reasons=parsed.reasons||[];
-  meta.innerHTML=`IA encontró <span>${ranked.length} propiedades</span> — "${parsed.summary||''}"`;
- 
-  grid.innerHTML=ranked.map((pi,rank)=>{
-    const p=PROPS[pi],sc=scores[pi]||0,re=reasons[pi]||'';
-    const firstRoom=p.rooms[0];
-    const firstImg=roomImg(firstRoom.label);
-    return`<div class="demo-card" data-pi="${pi}" style="transition-delay:${rank*70}ms">
-      <div class="card-photo-zone">
-        <div class="card-photo-bg" id="bg-${pi}-${rank}" style="background:${firstRoom.bg}"></div>
-        <img class="card-photo" id="photo-${pi}-${rank}" src="${firstImg}" alt="${firstRoom.label}"/>
-        <div class="card-photo-overlay">
-          <div class="card-photo-label" id="label-${pi}-${rank}">${firstRoom.label}</div>
-        </div>
-        <div class="card-floorplan" id="fp-${pi}-${rank}">
-          ${p.rooms.map(r=>`
-            <button class="fp-hotspot" data-img="${roomImg(r.label)}" data-label="${r.label}" data-bg="${r.bg}" data-pi="${pi}" data-rank="${rank}"
-              style="left:${r.x}%;top:${r.y}%" title="${r.label}">
-              <span class="fp-dot"></span>
-              <span class="fp-tooltip">${r.label}</span>
-            </button>`).join('')}
-          <div class="fp-hint">Tocá un punto · ver habitación</div>
-        </div>
-        <button class="card-tour-btn" data-pi="${pi}" data-rank="${rank}">
-          <span class="tour-icon">⊹</span> Tour
-        </button>
-      </div>
-      <div class="card-info">
-        <div class="demo-card-rank">${rank+1}</div>
-        <div class="demo-card-type">${p.type}</div>
-        <div class="demo-card-name">${p.name}</div>
-        <div class="demo-card-loc">${p.loc}</div>
-        <div class="demo-card-match">"${re}"</div>
-        <div class="demo-bar-wrap">
-          <div class="demo-bar-track"><div class="demo-bar-fill" data-w="${sc}"></div></div>
-          <div class="demo-bar-score">${sc}%</div>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
- 
-  // Events
-  grid.querySelectorAll('.card-tour-btn').forEach(btn=>{
-    btn.addEventListener('click',e=>{
-      e.stopPropagation();
-      const {pi,rank}=btn.dataset;
-      const fp=document.getElementById(`fp-${pi}-${rank}`);
-      const isOpen=fp.classList.contains('open');
-      // Close all others
-      document.querySelectorAll('.card-floorplan.open').forEach(f=>f.classList.remove('open'));
-      document.querySelectorAll('.card-tour-btn.active').forEach(b=>b.classList.remove('active'));
-      if(!isOpen){fp.classList.add('open');btn.classList.add('active');btn.innerHTML='<span class="tour-icon">✕</span> Cerrar tour';}
-      else{btn.innerHTML='<span class="tour-icon">⊹</span> Tour por ambientes';}
-    });
-  });
- 
-  grid.querySelectorAll('.fp-hotspot').forEach(hs=>{
-    hs.addEventListener('click',e=>{
-      e.stopPropagation();
-      const {pi,rank,img,label,bg}=hs.dataset;
-      const card=hs.closest('.demo-card');
-      const photo=card.querySelector('.card-photo');
-      const bgEl=card.querySelector('.card-photo-bg');
-      const labelEl=document.getElementById(`label-${pi}-${rank}`);
-      // Swap background color instantly
-      if(bgEl) bgEl.style.background=bg;
-      // Fade photo out, swap, fade in
-      photo.style.opacity='0';
-      photo.style.transform='scale(1.04)';
-      setTimeout(()=>{
-        photo.src=roomImg(label);
-        photo.style.transform='scale(1)';
-        photo.onload=()=>{ photo.style.opacity='1'; };
-        photo.onerror=()=>{ photo.style.opacity='0'; };
-      },200);
-      labelEl.textContent=label;
-      labelEl.style.opacity='0';
-      setTimeout(()=>{labelEl.style.opacity='1'},280);
-      hs.closest('.card-floorplan').querySelectorAll('.fp-hotspot').forEach(h=>h.classList.remove('active'));
-      hs.classList.add('active');
-    });
-  });
- 
-  results.classList.add('on');
-  setTimeout(()=>{
-    grid.querySelectorAll('.demo-card').forEach((c,i)=>{
-      setTimeout(()=>{
-        c.classList.add('on');
-        setTimeout(()=>{const b=c.querySelector('.demo-bar-fill');if(b)b.style.width=b.dataset.w+'%'},200);
-      },i*80);
-    });
-  },50);
-}
-document.getElementById('demoInput').addEventListener('keydown',e=>{if(e.key==='Enter')runSearch()});
- 
-// ── Minimal hero background ──
-(function(){
-  const canvas=document.getElementById('heroCanvas');if(!canvas)return;
-  const ctx=canvas.getContext('2d');
-  let W,H,particles=[],time=0,raf;
-  function resize(){W=canvas.width=canvas.offsetWidth||window.innerWidth;H=canvas.height=canvas.offsetHeight||window.innerHeight;initP()}
-  function initP(){particles=[];const n=Math.floor(W*H/16000);for(let i=0;i<n;i++)particles.push({x:Math.random()*W,y:Math.random()*H,r:0.4+Math.random()*0.8,a:0.04+Math.random()*0.09,vx:(Math.random()-.5)*0.1,vy:-.05-Math.random()*0.09,ph:Math.random()*Math.PI*2})}
-  function draw(now){
-    time=now*.001;ctx.clearRect(0,0,W,H);
-    ctx.fillStyle='#080808';ctx.fillRect(0,0,W,H);
-    const g1=ctx.createRadialGradient(W*.75,H*.08,0,W*.75,H*.08,W*.55);
-    g1.addColorStop(0,'rgba(200,185,154,0.06)');g1.addColorStop(1,'rgba(200,185,154,0)');
-    ctx.fillStyle=g1;ctx.fillRect(0,0,W,H);
-    const g2=ctx.createRadialGradient(W*.08,H*.88,0,W*.08,H*.88,W*.4);
-    g2.addColorStop(0,'rgba(180,185,200,0.03)');g2.addColorStop(1,'rgba(180,185,200,0)');
-    ctx.fillStyle=g2;ctx.fillRect(0,0,W,H);
-    // Ray
-    ctx.save();ctx.translate(W*.72,0);ctx.rotate(0.22);
-    const ray=ctx.createLinearGradient(0,0,100,H*1.2);
-    ray.addColorStop(0,'rgba(200,185,154,0.025)');ray.addColorStop(1,'rgba(200,185,154,0)');
-    ctx.fillStyle=ray;ctx.fillRect(0,0,100,H*1.4);ctx.restore();
-    // Particles
-    particles.forEach(p=>{
-      p.x+=p.vx+Math.sin(time*.4+p.ph)*.07;p.y+=p.vy;
-      if(p.y<-2){p.y=H+2;p.x=Math.random()*W}
-      if(p.x<-2)p.x=W+2;if(p.x>W+2)p.x=-2;
-      const pulse=.7+Math.sin(time*.6+p.ph)*.3;
+  var t=0;
+  function draw(){
+    ctx.clearRect(0,0,W,H);t+=0.004;
+    drawOrb(W*0.12+Math.sin(t*0.7)*90,H*0.22+Math.cos(t*0.5)*70,480,0.08);
+    drawOrb(W*0.88+Math.cos(t*0.55)*100,H*0.75+Math.sin(t*0.4)*80,560,0.06);
+    drawOrb(mouse.x,mouse.y,260,0.025);
+    for(var i=0;i<particles.length;i++){
+      var p=particles[i];p.update();
+      var fade=Math.sin(p.life/p.maxLife*Math.PI);
       ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fillStyle=`rgba(200,185,154,${p.a*pulse})`;ctx.fill();
-    });
-    // Horizontal sheen lines
-    for(let i=0;i<3;i++){
-      const ly=H*(.25+i*.22)+Math.sin(time*.15+i)*8;
-      const lg=ctx.createLinearGradient(0,ly,W,ly);
-      lg.addColorStop(0,'rgba(200,185,154,0)');lg.addColorStop(.35,'rgba(200,185,154,0.016)');lg.addColorStop(.65,'rgba(200,185,154,0.016)');lg.addColorStop(1,'rgba(200,185,154,0)');
-      ctx.fillStyle=lg;ctx.fillRect(0,ly-.5,W,1);
+      ctx.fillStyle=GOLD+(p.alpha*fade)+')';ctx.fill();
     }
-    raf=requestAnimationFrame(draw);
+    ctx.lineWidth=0.5;
+    for(var k=0;k<particles.length;k++){
+      for(var m=k+1;m<particles.length;m++){
+        var dx=particles[k].x-particles[m].x;
+        var dy=particles[k].y-particles[m].y;
+        var dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<110){
+          ctx.globalAlpha=(1-dist/110)*0.1;
+          ctx.strokeStyle=GOLD+'1)';
+          ctx.beginPath();ctx.moveTo(particles[k].x,particles[k].y);ctx.lineTo(particles[m].x,particles[m].y);ctx.stroke();
+        }
+      }
+    }
+    ctx.globalAlpha=1;
+    requestAnimationFrame(draw);
   }
-  resize();window.addEventListener('resize',resize);raf=requestAnimationFrame(draw);
-})();
+  draw();
  
-// ── Droplet intro ──
-(function(){
-  const intro=document.getElementById('intro');
-  const logo=document.getElementById('introLogo');
-  const sub=document.getElementById('introSub');
-  const canvas=document.getElementById('dropCanvas');
-  const ctx=canvas.getContext('2d');
-  let W,H,cx,cy,rings=[],dropY,dropPhase,raf,startTime,impactTime=null,logoShown=false;
-  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;cx=W/2;cy=H/2}
-  resize();window.addEventListener('resize',resize);
-  function easeIn(t){return t*t*t}
-  function easeOut(t){return t===1?1:1-Math.pow(2,-10*t)}
-  function init(){
-    rings=[];dropY=-60;dropPhase='falling';startTime=performance.now();logoShown=false;impactTime=null;
-    [{delay:0,maxR:W*.08,dur:900,op:.55},{delay:120,maxR:W*.18,dur:1100,op:.38},{delay:290,maxR:W*.31,dur:1400,op:.25},{delay:480,maxR:W*.48,dur:1700,op:.17},{delay:690,maxR:W*.67,dur:2000,op:.1},{delay:950,maxR:W*.9,dur:2300,op:.06},{delay:1200,maxR:W*1.18,dur:2600,op:.035}
-    ].forEach(r=>rings.push({...r,born:null}));
-  }
-  function draw(now){
-    ctx.clearRect(0,0,W,H);const elapsed=now-startTime;
-    if(dropPhase==='falling'){
-      const t=Math.min(elapsed/900,1);dropY=-40+(cy-10)*easeIn(t);
-      ctx.save();ctx.translate(cx,dropY);
-      const g=ctx.createLinearGradient(0,-18,0,10);g.addColorStop(0,'rgba(200,185,154,0)');g.addColorStop(1,'rgba(200,185,154,0.75)');
-      ctx.beginPath();ctx.moveTo(0,-18);ctx.quadraticCurveTo(5,-8,5,0);ctx.quadraticCurveTo(5,10,0,12);ctx.quadraticCurveTo(-5,10,-5,0);ctx.quadraticCurveTo(-5,-8,0,-18);
-      ctx.fillStyle=g;ctx.fill();ctx.restore();
-      if(t>=1){dropPhase='impact';impactTime=now}
-    }
-    if(dropPhase==='impact'||dropPhase==='done'){
-      const si=now-impactTime;
-      if(si<420){const st=si/420,sr=easeOut(st)*30,sh=(1-st)*24;ctx.save();ctx.translate(cx,cy);for(let i=0;i<8;i++){const a=(i/8)*Math.PI*2;ctx.beginPath();ctx.arc(Math.cos(a)*sr*.6,Math.sin(a)*sr*.28-sh*Math.abs(Math.cos(a)),2.8*(1-st),0,Math.PI*2);ctx.fillStyle=`rgba(200,185,154,${0.65*(1-st)})`;ctx.fill()}ctx.restore()}
-      rings.forEach(ring=>{const t0=si-ring.delay;if(t0<0)return;const p=Math.min(t0/ring.duration,1),r=easeOut(p)*ring.maxR,a=ring.opacity*(1-p);ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle=`rgba(200,185,154,${a})`;ctx.lineWidth=1.5;ctx.stroke();if(ring.maxR<W*.2){ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fillStyle=`rgba(200,185,154,${a*.04})`;ctx.fill()}});
-      if(!logoShown&&si>380){logoShown=true;logo.style.opacity='1';logo.style.transform='scale(1)';setTimeout(()=>{sub.style.opacity='1'},450)}
-      const last=rings[rings.length-1];
-      if(si>last.delay+last.duration*.7&&dropPhase==='impact'){dropPhase='done';setTimeout(dismiss,600)}
-    }
-    raf=requestAnimationFrame(draw);
-  }
-  function dismiss(){cancelAnimationFrame(raf);intro.style.opacity='0';setTimeout(()=>{intro.style.display='none';startCap()},1200)}
-  init();raf=requestAnimationFrame(draw);
-  intro.addEventListener('click',()=>{if(dropPhase!=='done'){cancelAnimationFrame(raf);dismiss()}},{once:true});
-  window.startCap=function(){setTimeout(()=>{capture.classList.add('visible');setTimeout(type,1200)},3200)};
+  var reveals=document.querySelectorAll('.reveal');
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target);}});
+  },{threshold:0.08,rootMargin:'0px 0px -40px 0px'});
+  reveals.forEach(function(el){io.observe(el);});
+ 
+  var counters=document.querySelectorAll('[data-target]');
+  var counted=false;
+  var cObs=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting&&!counted){
+        counted=true;
+        counters.forEach(function(el){
+          var target=parseInt(el.getAttribute('data-target'));
+          var prefix=el.getAttribute('data-prefix')||'';
+          var suffix=el.getAttribute('data-suffix')||'';
+          var cur=0;var dur=1600;var step=16;
+          var inc=target/(dur/step);
+          var timer=setInterval(function(){
+            cur+=inc;if(cur>=target){cur=target;clearInterval(timer);}
+            el.textContent=prefix+Math.round(cur)+suffix;
+          },step);
+        });
+      }
+    });
+  },{threshold:0.5});
+  var numbersEl=document.querySelector('.numbers');
+  if(numbersEl)cObs.observe(numbersEl);
 })();
 </script>
 </body>
